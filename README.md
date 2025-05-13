@@ -97,17 +97,23 @@ mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws
 colcon build
 ```
+### 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
 
-### 🚀 Node ve Launch Yönetimi
+ROS1 ve ROS2'de kullanılan temel komut satırı araçları aşağıdaki gibidir:
+
+| İşlem              | ROS1 Komutu       | ROS2 Komutu        |
+|--------------------|-------------------|--------------------|
+| Node başlatma      | `rosrun`          | `ros2 run`         |
+| Launch çalıştırma  | `roslaunch`       | `ros2 launch`      |
+| Topic listeleme    | `rostopic list`   | `ros2 topic list`  |
+| Parametre ayarlama | `rosparam set`    | `ros2 param set`   |
+| Bag kaydı          | `rosbag record`   | `ros2 bag record`  |
+
+
+
+### 5. 🚀 Node ve Launch Yönetimi
 
 ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli farklar vardır. ROS2, node başlatmayı daha modüler ve programlanabilir hale getirmiştir.
-
-#### 🔧 Node Çalıştırma
-
-| Özellik            | ROS1                             | ROS2                            |
-|--------------------|----------------------------------|---------------------------------|
-| Node başlatma      | `rosrun package_name node_name`  | `ros2 run package_name node_name` |
-| Paket arama        | `roscd`, `rosls`                 | `ros2 pkg`, `ros2 pkg prefix`  |
 
 #### 🚀 Launch Dosyaları
 
@@ -121,7 +127,7 @@ ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli fa
 </launch>
 ```
 
-**Aynı yapı ROS2'de Python ile (start_robot.launch.py):
+**Aynı yapı ROS2'de Python ile (start_robot.launch.py):**
 ```python
 from launch import LaunchDescription
 from launch_ros.actions import Node
