@@ -88,11 +88,51 @@ ROS2’de workspace yapısı modernleştirilmiştir. `colcon` aracı, bağımsı
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws
 catkin_make
-
+```
 ### ROS2 (colcon)
-bash
+```bash
 Copy
 Edit
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws
 colcon build
+```
+
+### 🚀 Node ve Launch Yönetimi
+
+ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli farklar vardır. ROS2, node başlatmayı daha modüler ve programlanabilir hale getirmiştir.
+
+#### 🔧 Node Çalıştırma
+
+| Özellik            | ROS1                             | ROS2                            |
+|--------------------|----------------------------------|---------------------------------|
+| Node başlatma      | `rosrun package_name node_name`  | `ros2 run package_name node_name` |
+| Paket arama        | `roscd`, `rosls`                 | `ros2 pkg`, `ros2 pkg prefix`  |
+
+#### 🚀 Launch Dosyaları
+
+- **ROS1**: `.launch` uzantılı XML dosyaları ile çalışır.
+- **ROS2**: Python tabanlı `.launch.py` dosyaları kullanılır. Bu sayede koşullu işlemler, döngüler ve parametre yönetimi daha dinamik hale gelir.
+
+**Örnek ROS1 launch dosyası (`start_robot.launch`)**:
+```xml
+<launch>
+  <node pkg="my_robot" type="robot_node.py" name="robot_node" output="screen" />
+</launch>
+```
+
+**Aynı yapı ROS2'de Python ile (start_robot.launch.py):
+```python
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='my_robot',
+            executable='robot_node',
+            name='robot_node',
+            output='screen'
+        )
+    ])
+```
