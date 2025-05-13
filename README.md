@@ -91,8 +91,6 @@ catkin_make
 ```
 ### ROS2 (colcon)
 ```bash
-Copy
-Edit
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws
 colcon build
@@ -101,13 +99,64 @@ colcon build
 
 ROS1 ve ROS2'de kullanılan temel komut satırı araçları aşağıdaki gibidir:
 
-| İşlem              | ROS1 Komutu       | ROS2 Komutu        |
-|--------------------|-------------------|--------------------|
-| Node başlatma      | `rosrun`          | `ros2 run`         |
-| Launch çalıştırma  | `roslaunch`       | `ros2 launch`      |
-| Topic listeleme    | `rostopic list`   | `ros2 topic list`  |
-| Parametre ayarlama | `rosparam set`    | `ros2 param set`   |
-| Bag kaydı          | `rosbag record`   | `ros2 bag record`  |
+### 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
+
+ROS2 ile birlikte komut satırı araçları büyük ölçüde yeniden yapılandırılmış ve alt komutlara bölünerek daha modüler hale getirilmiştir. Bu sayede her kaynak türü için (topic, service, param, bag, dll.) ayrı araçlar kullanılır.
+
+#### 🔄 Genel Komut Karşılaştırması
+
+| İşlem                       | ROS1 Komutu                    | ROS2 Komutu                           |
+|----------------------------|--------------------------------|----------------------------------------|
+| Paket listeleme            | `rospack list`                | `ros2 pkg list`                        |
+| Paket yolu bulma           | `rospack find <pkg>`          | `ros2 pkg prefix <pkg>`               |
+| Node çalıştırma            | `rosrun <pkg> <node>`         | `ros2 run <pkg> <node>`               |
+| Launch dosyası çalıştırma  | `roslaunch <pkg> <file>`      | `ros2 launch <pkg> <file>`            |
+
+#### 📡 Topic İşlemleri
+
+| İşlem                       | ROS1                          | ROS2                                  |
+|----------------------------|-------------------------------|----------------------------------------|
+| Listeleme                   | `rostopic list`              | `ros2 topic list`                      |
+| Yayınlanan veri izleme     | `rostopic echo /topic`       | `ros2 topic echo /topic`              |
+| Bilgi görüntüleme          | `rostopic info /topic`       | `ros2 topic info /topic`              |
+| Yayın yapma (manuel)       | `rostopic pub`               | `ros2 topic pub`                      |
+| Test mesaj gönderme        | `rostopic pub -1`            | `ros2 topic pub --once`              |
+
+#### 🧪 Service İşlemleri
+
+| İşlem                       | ROS1                          | ROS2                                  |
+|----------------------------|-------------------------------|----------------------------------------|
+| Listeleme                   | `rosservice list`            | `ros2 service list`                   |
+| Bilgi görüntüleme          | `rosservice info`            | `ros2 service info`                   |
+| Hizmet çağırma             | `rosservice call`            | `ros2 service call`                   |
+| Hizmet tipi sorgulama      | `rosservice type`            | `ros2 service type`                   |
+
+#### ⚙️ Parametre İşlemleri
+
+| İşlem                       | ROS1                          | ROS2                                  |
+|----------------------------|-------------------------------|----------------------------------------|
+| Param listeleme            | `rosparam list`              | `ros2 param list`                     |
+| Param değeri alma          | `rosparam get /param`        | `ros2 param get <node> <param>`       |
+| Param değeri ayarlama      | `rosparam set /param val`    | `ros2 param set <node> <param> val`   |
+| Param dosyasından yükleme  | `rosparam load file.yaml`    | `ros2 launch` ile YAML geçilir        |
+
+#### 💾 Bag Kayıt & Oynatma
+
+| İşlem                       | ROS1                          | ROS2                                  |
+|----------------------------|-------------------------------|----------------------------------------|
+| Kayıt başlatma             | `rosbag record -a`            | `ros2 bag record -a`                  |
+| Kaydı oynatma              | `rosbag play file.bag`        | `ros2 bag play file`                  |
+| İçerik görüntüleme         | `rosbag info file.bag`        | `ros2 bag info file`                  |
+
+#### 🧩 Mesaj ve Servis Tipleri
+
+| İşlem                       | ROS1                          | ROS2                                  |
+|----------------------------|-------------------------------|----------------------------------------|
+| Mesaj tipi listeleme       | `rosmsg list`                | `ros2 interface list`                 |
+| Mesaj tipini inceleme      | `rosmsg show <type>`         | `ros2 interface show <type>`          |
+| Hizmet tipi listeleme      | `rossrv list`                | `ros2 interface list` (aynı komut)   |
+| Hizmet tipi gösterme       | `rossrv show <type>`         | `ros2 interface show <type>`         |
+
 
 
 
