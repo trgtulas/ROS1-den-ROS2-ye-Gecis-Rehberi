@@ -95,11 +95,10 @@ mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws
 colcon build
 ```
-### 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
 
-ROS1 ve ROS2'de kullanılan temel komut satırı araçları aşağıdaki gibidir:
+---
 
-### 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
+## 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
 
 ROS2 ile birlikte komut satırı araçları büyük ölçüde yeniden yapılandırılmış ve alt komutlara bölünerek daha modüler hale getirilmiştir. Bu sayede her kaynak türü için (topic, service, param, bag, dll.) ayrı araçlar kullanılır.
 
@@ -157,10 +156,9 @@ ROS2 ile birlikte komut satırı araçları büyük ölçüde yeniden yapıland�
 | Hizmet tipi listeleme      | `rossrv list`                | `ros2 interface list` (aynı komut)   |
 | Hizmet tipi gösterme       | `rossrv show <type>`         | `ros2 interface show <type>`         |
 
+---
 
-
-
-### 5. 🚀 Node ve Launch Yönetimi
+## 5. 🚀 Node ve Launch Yönetimi
 
 ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli farklar vardır. ROS2, node başlatmayı daha modüler ve programlanabilir hale getirmiştir.
 
@@ -191,3 +189,59 @@ def generate_launch_description():
         )
     ])
 ```
+
+#### 📦 Node Tanımı: Yapısal Farklılıklar
+
+##### ROS1 Python Node (örnek)
+```python
+#!/usr/bin/env python
+import rospy
+
+def main():
+    rospy.init_node('simple_node')
+    rospy.loginfo("Merhaba ROS1!")
+
+if __name__ == '__main__':
+    main()
+```
+
+##### ROS1 Python Node (örnek)
+```python
+import rclpy
+from rclpy.node import Node
+
+class SimpleNode(Node):
+    def __init__(self):
+        super().__init__('simple_node')
+        self.get_logger().info("Merhaba ROS2!")
+
+def main():
+    rclpy.init()
+    node = SimpleNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+#### 🧠 ROS1 ve ROS2 Node Yapısı Karşılaştırması
+
+ROS1’de node yapısı basit ve fonksiyon temellidir. `rospy` ile bir node başlatılır ve `spin()` ile çalıştırılır. Modülerlik düşüktür, genellikle küçük projelerde yeterlidir.
+
+ROS2’de ise node yapısı nesne yönelimlidir (OOP). Her node, `Node` sınıfından türetilir. Bu sayede:
+- Kod daha okunabilir ve modüler olur.
+- Parametre, publisher, subscriber gibi bileşenler sınıf içinde düzenlenir.
+- Test edilebilirlik artar.
+- Lifecycle, QoS, callback yönetimi gibi gelişmiş özellikler entegre edilir.
+
+| Özellik                 | ROS1                         | ROS2                           |
+|--------------------------|------------------------------|---------------------------------|
+| Yapı                     | Fonksiyon temelli            | Sınıf tabanlı (OOP)            |
+| Giriş noktası            | `rospy.init_node()`          | `rclpy.init()`                 |
+| Logger                   | `rospy.loginfo()`            | `self.get_logger().info()`     |
+| Modülerlik               | Düşük                        | Yüksek                         |
+| Kaynak yönetimi          | Otomatik                     | `destroy_node()`, `shutdown()`|
+| Gelişmiş node özellikleri| Yok                          | Var (Lifecycle, Component vs.)|
+
+ROS2, daha büyük ve karmaşık sistemler için daha sürdürülebilir bir node yapısı sunar.
