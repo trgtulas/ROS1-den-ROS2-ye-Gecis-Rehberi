@@ -162,7 +162,7 @@ ROS2 ile birlikte komut satırı araçları büyük ölçüde yeniden yapıland�
 
 ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli farklar vardır. ROS2, node başlatmayı daha modüler ve programlanabilir hale getirmiştir.
 
-#### 🚀 Launch Dosyaları
+### 🚀 Launch Dosyaları
 
 - **ROS1**: `.launch` uzantılı XML dosyaları ile çalışır.
 - **ROS2**: Python tabanlı `.launch.py` dosyaları kullanılır. Bu sayede koşullu işlemler, döngüler ve parametre yönetimi daha dinamik hale gelir.
@@ -190,7 +190,8 @@ def generate_launch_description():
     ])
 ```
 
-#### 📦 Node Tanımı: Yapısal Farklılıklar
+
+### 📦 Node Tanımı: Yapısal Farklılıklar
 
 ##### ROS1 Python Node (örnek)
 ```python
