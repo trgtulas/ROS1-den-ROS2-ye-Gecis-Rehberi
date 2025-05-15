@@ -570,3 +570,103 @@ def generate_launch_description():
 
 ROS2’de simülasyon sistemi sadece port edilmekle kalmamış, aynı zamanda donanım kontrolü, parametrik yönetim ve launch altyapısı açısından daha esnek ve güçlü hale getirilmiştir. Gerçek robottan önce güvenli test ortamı sağlamak için Gazebo entegrasyonu hâlâ vazgeçilmezdir.  
 
+---
+
+## 10. TF ve TF2 Kullanımı
+
+Robot sistemlerinde sensör verilerini, robot parçalarının konumlarını ve hareketli nesneleri doğru şekilde ilişkilendirmek için **TF (Transform)** sistemine ihtiyaç duyulur. TF, farklı koordinat sistemleri (örneğin: `base_link`, `laser`, `odom`, `map`) arasında dönüşüm sağlar. ROS1 ve ROS2'de bu sistemin yapısı farklıdır.
+
+---
+
+### 🔄 ROS1: `tf` ve `tf2` Karışık Kullanımı
+
+ROS1’de hem `tf` hem de `tf2` kütüphaneleri kullanılabilir:
+- `tf` eski sistem, basit ama sınırlı
+- `tf2` daha modern ve önerilen sistemdir
+- Her iki sistem de uzun süre birlikte kullanılmıştır
+
+**Yaygın kullanım:**
+- `tf::TransformListener`, `tf::TransformBroadcaster` (`tf`)
+- `tf2_ros::Buffer`, `tf2_ros::TransformListener` (`tf2`)
+
+---
+
+### 🔁 ROS2: Sadece `tf2`
+
+ROS2 ile birlikte TF sistemi tamamen **`tf2` üzerine inşa edilmiştir**:
+- `tf` artık desteklenmez
+- Tüm broadcast ve lookup işlemleri `tf2_ros` üzerinden yapılır
+- Static ve dynamic transform yayıncıları lifecycle uyumludur
+
+---
+
+### 📌 Yayma (Broadcast) ve Dinleme (Listen) Farkları
+
+| İşlem                   | ROS1                             | ROS2                                |
+|--------------------------|----------------------------------|-------------------------------------|
+| Static transform yayma   | `static_transform_publisher` CLI veya node | `ros2 run tf2_ros static_transform_publisher` |
+| Dinamik transform yayma  | `tf::TransformBroadcaster`      | `tf2_ros.TransformBroadcaster`     |
+| Dönüşüm dinleme          | `tf::TransformListener`         | `tf2_ros.TransformListener`        |
+| TF2 desteği              | Opsiyonel                        | Varsayılan ve zorunlu              |
+| Mesaj türü               | `tf`/`tfMessage`                | `geometry_msgs/msg/TransformStamped` |
+
+---
+
+### 🧪 Static Transform CLI Karşılaştırması
+
+**ROS1:**
+```bash
+rosrun tf static_transform_publisher x y z qx qy qz qw frame_id child_frame_id period_in_ms
+```
+
+**ROS2:**
+```bash
+ros2 run tf2_ros static_transform_publisher x y z roll pitch yaw frame_id child_frame_id
+```
+
+- ROS2’de dönüşümler quaternion yerine roll, pitch, yaw olarak girilir
+
+- ROS2 komutu daha basit, otomatik frekansla çalışır
+
+---
+
+🧩 TF2 Kullanım Örnekleri (Kod Mantığı)
+ROS1:
+
+- Dinleyici:
+  - 'tf::TransformListener listener;'
+
+- Yayıncı:
+  -'tf::TransformBroadcaster br;'
+
+ROS2:
+
+- Dinleyici:
+  - 'tf_buffer = Buffer()', 'listener = TransformListener(buffer, node)'
+
+- Yayıncı:
+  - 'StaticTransformBroadcaster', 'TransformBroadcaster'
+
+ROS2’de tüm bu sınıflar tf2_ros paketinde yer alır ve QoS ayarlarıyla birlikte çalıştırılır.
+
+---
+
+🗺️ RViz ve TF2
+- ROS1 ve ROS2’de RViz (ve 'rviz2') içindeki TF görselleştirme sistemi aynıdır
+
+- TF ağaçlarının doğru yayınlandığını test etmek için:
+  - 'rosrun tf view_frames' → ROS1
+  - 'ros2 run tf2_tools view_frames' → ROS2 (PDF olarak çıkarır)
+
+✅ Geçiş Önerileri
+- 'tf::' içeren tüm kodlar 'tf2_ros' yapısına geçirilmelidir
+
+- Transform mesaj türü 'geometry_msgs/msg/TransformStamped' olmalıdır
+
+- Eğer ROS1 kodlarınızda 'tf' kullanıyorsanız ROS2’de bu doğrudan çalışmaz
+
+- Statik dönüşümler için CLI komutlarının ROS2 sürümü kullanılmalı
+
+- 'tf2_ros.Buffer' yapısına alışmak uzun vadede daha güçlü yapı sağlar
+
+ROS2’de transform sisteminin tamamen 'tf2' üzerine kurulmuş olması sayesinde; daha tutarlı, esnek ve DDS uyumlu bir yapı sağlanmıştır. Doğru TF yapısı, navigasyon, SLAM, robot kolu gibi tüm sistemlerin güvenilir çalışması için temel şarttır.
