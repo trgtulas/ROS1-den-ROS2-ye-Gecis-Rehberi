@@ -670,3 +670,33 @@ ROS2’de tüm bu sınıflar tf2_ros paketinde yer alır ve QoS ayarlarıyla bir
 - `tf2_ros.Buffer` yapısına alışmak uzun vadede daha güçlü yapı sağlar
 
 ROS2’de transform sisteminin tamamen `tf2` üzerine kurulmuş olması sayesinde; daha tutarlı, esnek ve DDS uyumlu bir yapı sağlanmıştır. Doğru TF yapısı, navigasyon, SLAM, robot kolu gibi tüm sistemlerin güvenilir çalışması için temel şarttır.
+
+---
+
+---
+
+## 🔧 Ek Araçlar: Geçiş Sürecinde Yardımcı Olabilecek Bileşenler
+
+Tüm sistemi doğrudan ROS2’ye geçirmek her zaman mümkün olmayabilir. Bazı bileşenlerin geçici olarak ROS1'de kalması gerekiyorsa, aşağıdaki araçlar bu süreçte size yardımcı olabilir.
+
+---
+
+### 🔗 `ros1_bridge`: ROS1 ve ROS2 Arasında Köprü Kurmak
+
+`ros1_bridge`, ROS1 ve ROS2 sistemleri arasında mesaj ve servis alışverişi yapmanızı sağlayan bir köprü katmanıdır. Geçici çözümler veya kademeli geçiş senaryolarında oldukça kullanışlıdır.
+
+**Ne zaman kullanılır?**
+- Bazı sürücüler veya node'lar henüz ROS2’ye port edilmemişse
+- ROS2’de yeni geliştirilen sistemlerin ROS1 verisiyle test edilmesi gerekiyorsa
+
+**Temel Özellikleri:**
+- ROS1 ve ROS2’de aynı tanımlanmış mesajlar arasında otomatik köprü
+- Topic, service ve (kısıtlı olarak) action desteği
+- Kaynak koddan derleme gerekir, özel mesajlarda ekstra yapılandırma gerekebilir
+
+**Resmi proje sayfası:**  
+👉 https://github.com/ros2/ros1_bridge
+
+> Tam geçiş yapan kullanıcılar için gerekli değildir.
+
+---
