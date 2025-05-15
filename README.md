@@ -476,4 +476,97 @@ ROS2'nin navigasyon, haritalama ve kol kontrol sistemleri; daha esnek, modüler 
 
 ---
 
+## 9. Gazebo Simülasyonu: ROS1 vs ROS2
+
+Gazebo, robotların sanal ortamlarda test edilmesini sağlayan güçlü bir fizik motorudur. Hem ROS1 hem de ROS2 ile entegre çalışabilir, ancak entegrasyon yapısı ve kullanılan araçlar zamanla değişmiştir. ROS2 ile birlikte **Gazebo Classic** (eski adıyla Gazebo) yanında **Ignition (GZ) Gazebo** sistemleri de desteklenmeye başlamıştır.
+
+---
+
+### 🏗️ Genel Mimarideki Değişiklikler
+
+| Özellik                     | ROS1 (Noetic)                    | ROS2 (Humble)                                |
+|-----------------------------|----------------------------------|----------------------------------------------|
+| Entegre simülasyon aracı    | `gazebo_ros`                     | `gazebo_ros_pkgs`, `gz_ros2_control`, `ros_ign` |
+| Desteklenen Gazebo sürümü   | Gazebo Classic                   | Gazebo Classic + Ignition (GZ)               |
+| Kontrol altyapısı           | `ros_control` + `gazebo_ros_control` | `ros2_control` + `gz_ros2_control`      |
+| Robot dosyaları             | `.urdf`, `.xacro`                | Aynı, ancak `ros2_control` ile daha entegre  |
+| Sensor plugin yapısı        | XML + `.gazebo` tag’leri         | Aynı mantıkta, ama ROS2 API ile uyumlu       |
+
+---
+
+### ⚙️ ROS1’de Gazebo Simülasyonu
+
+ROS1'de tipik bir simülasyon sistemi şu parçaları içerir:
+- `gazebo_ros` paketi
+- `.world` dosyaları (ortamlar)
+- `.urdf` veya `.xacro` ile tanımlanmış robot
+- `ros_control` ile donanım arayüzü
+- Sensor plugin’leri (örneğin: `gazebo_ros_camera`, `gazebo_ros_laser`)
+
+**Launch dosyası örneği (ROS1):**
+```xml
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+  <param name="robot_description" command="$(find xacro)/xacro $(find my_robot)/urdf/my_robot.urdf.xacro" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model my_robot" />
+</launch>
+```
+
+--- 
+
+### ⚙️ ROS2’de Gazebo Simülasyonu
+
+ROS2’de yapı daha modüler ve standart hale gelmiştir. `gazebo_ros_pkgs` ROS2 için portlanmıştır, ayrıca `gz_ros2_control` paketi sayesinde robot kontrolü çok daha entegre çalışır.
+
+ROS2'nin desteklediği başlıca simülasyon yapı taşları:
+
+- **gazebo_ros**: Temel Gazebo-ROS bağlantısı  
+- **ros2_control**: ROS2 tabanlı donanım arayüzü  
+- **gz_ros2_control**: Gazebo ile ros2_control arasında bağlantı sağlar  
+- **ros_ign**: GZ (Ignition) simülasyon sistemleri için ROS arayüzü  
+
+### Launch dosyası örneği (ROS2):
+```python
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
+
+def generate_launch_description():
+    return LaunchDescription([
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                get_package_share_directory('gazebo_ros'), '/launch/gazebo.launch.py']),
+        ),
+    ])
+```
+
+### 🔌 Donanım ve Sensör Entegrasyonu
+
+| Özellik             | ROS1                              | ROS2                                         |
+| ------------------- | --------------------------------- | -------------------------------------------- |
+| LIDAR               | `gazebo_ros_laser` plugin         | Aynı XML formatı, ROS2’ye uyumlu hale getirildi |
+| Kamera              | `gazebo_ros_camera`               | `gazebo_ros_camera` (ROS2 portu)             |
+| Donanım kontrolü    | `ros_control + effort/joint`      | `ros2_control + gz_ros2_control`             |
+| Plugin yükleme      | URDF içinde `<gazebo>` tag’leri   | Aynı yöntemle çalışır                        |
+
+### 🛠️ Geçiş Tavsiyeleri
+
+- Gazebo Classic kullanıyorsan, ROS1’deki yapı doğrudan ROS2’ye portlanabilir.  
+- Yeni sistemler için `ros2_control + gz_ros2_control` kullanmak daha performanslı ve sürdürülebilirdir.  
+- Sensor plugin’leri için ROS2 uyumlu versiyonlar (aynı isimle) kullanılmalı.  
+- `xacro` ve `robot_state_publisher` yapısı ROS2'de aynı kalır, sadece launch sistemi Python’a geçmiştir.  
+
+### 🎯 Özet
+
+| Özellik                    | ROS1 (Noetic)             | ROS2 (Humble)                               |
+| -------------------------- | ------------------------- | -------------------------------------------- |
+| Simülasyon altyapısı       | `gazebo_ros`              | `gazebo_ros_pkgs`, `gz_ros2_control`         |
+| Kontrol sistemi            | `ros_control`             | `ros2_control`                               |
+| Sensör eklentileri         | Plugin tabanlı            | Aynı, ROS2 uyumlu versiyonları               |
+| Launch formatı             | XML (`.launch`)           | Python (`.launch.py`)                        |
+| Robot tanımı               | `.urdf`, `.xacro`         | Aynı                                         |
+| GZ (Ignition) desteği      | Yok                       | Var (`ros_ign`, `gz_ros2_bridge`)            |
+
+ROS2’de simülasyon sistemi sadece port edilmekle kalmamış, aynı zamanda donanım kontrolü, parametrik yönetim ve launch altyapısı açısından daha esnek ve güçlü hale getirilmiştir. Gerçek robottan önce güvenli test ortamı sağlamak için Gazebo entegrasyonu hâlâ vazgeçilmezdir.  
 
