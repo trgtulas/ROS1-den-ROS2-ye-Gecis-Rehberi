@@ -246,3 +246,65 @@ ROS2’de ise node yapısı nesne yönelimlidir (OOP). Her node, `Node` sınıf�
 | Gelişmiş node özellikleri| Yok                          | Var (Lifecycle, Component vs.)|
 
 ROS2, daha büyük ve karmaşık sistemler için daha sürdürülebilir bir node yapısı sunar.
+
+---
+
+## 6. ROS2’ye Özgü Gelişmiş Özellikler
+
+ROS2, sadece mimari olarak değil, sunduğu gelişmiş özelliklerle de ROS1'e kıyasla çok daha güçlü bir altyapı sunar. Bu özellikler özellikle endüstriyel ve büyük ölçekli uygulamalar için tasarlanmıştır.
+
+---
+
+### 🔄 Lifecycle Nodes
+
+ROS2, node'ların durum yönetimini standart hale getirmek için **lifecycle node** yapısını sunar. Bu yapıda bir node, belirli durumlar arasında kontrollü olarak geçiş yapar:
+
+- `unconfigured`
+- `inactive`
+- `active`
+- `finalized`
+
+Bu sayede:
+- Node'lar sistem hazır olduğunda aktifleştirilir.
+- Hatalı durumlarda node pasifleştirilip tekrar başlatılabilir.
+- Sistem kontrolü daha güvenli ve yapılandırılabilir hale gelir.
+
+---
+
+### 🧩 Component Nodes
+
+**Component node** özelliği sayesinde aynı proseste birden fazla node çalıştırmak mümkündür. Bu yapı:
+- Bellek kullanımını azaltır
+- Başlatma süresini kısaltır
+- Aynı uygulama içinde dinamik olarak node eklemeyi mümkün kılar
+
+Özellikle **embedded sistemler** ve **çok modüllü robotik yazılımlar** için oldukça faydalıdır.
+
+---
+
+### 📶 QoS (Quality of Service) Profilleri
+
+ROS2, veri iletişiminde hassas ayarlar yapılabilmesi için **QoS profilleri** sunar. Bu profiller, her topic veya servis için farklı iletim politikaları tanımlamanıza imkân tanır.
+
+Örneğin:
+- **reliability**: `reliable` (güvenilir) vs `best_effort` (kayıp olabilir)
+- **durability**: `volatile` (sadece aktif abone varsa) vs `transient_local` (önceki veriler tutulur)
+- **history**: `keep_last`, `keep_all`
+
+Bu sayede her kullanım senaryosuna özel iletişim şekli tanımlanabilir.
+
+---
+
+### 🔐 SROS2: Güvenli ROS
+
+ROS2, DDS altyapısını kullanarak **güvenli iletişim** (Security ROS 2 - SROS2) imkânı sağlar. Özellikler şunlardır:
+
+- Veri şifreleme (encryption)
+- Kimlik doğrulama (authentication)
+- Yetkilendirme (authorization)
+
+Bu yapı özellikle ağ üzerinden çalışan robotlar, bulut entegrasyonları ve savunma sanayi gibi kritik alanlarda büyük önem taşır.
+
+---
+
+ROS2’nin bu gelişmiş özellikleri sayesinde daha modüler, esnek, güvenli ve performanslı robot sistemleri geliştirmek mümkün hale gelir.
