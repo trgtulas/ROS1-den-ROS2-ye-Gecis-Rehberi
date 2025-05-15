@@ -383,4 +383,5 @@ Bu yöntemle parametreler anlık olarak algılanabilir ve node davranışı gün
 | Çalışma zamanı değişim    | Yeniden başlatma gerekebilir       | Dinamik olarak desteklenir               |
 | Dinamik yapılandırma      | `dynamic_reconfigure`              | `set_parameters_callback()` fonksiyonu   |
 | Param aracı               | `rosparam`                         | `ros2 param`                             |
+
 ROS2'nin parametre yapısı daha güvenli, izole ve modülerdir. Node’lar birbirlerinin parametrelerine doğrudan erişemez, bu da hata riskini azaltır ve çoklu robot sistemlerinde parametre karışıklığını önler.
