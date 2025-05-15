@@ -634,18 +634,18 @@ ros2 run tf2_ros static_transform_publisher x y z roll pitch yaw frame_id child_
 ROS1:
 
 - Dinleyici:
-  - 'tf::TransformListener listener;'
+  - `tf::TransformListener listener;`
 
 - Yayıncı:
-  -'tf::TransformBroadcaster br;'
+  - `tf::TransformBroadcaster br;`
 
 ROS2:
 
 - Dinleyici:
-  - 'tf_buffer = Buffer()', 'listener = TransformListener(buffer, node)'
+  - `tf_buffer = Buffer()`, `listener = TransformListener(buffer, node)`
 
 - Yayıncı:
-  - 'StaticTransformBroadcaster', 'TransformBroadcaster'
+  - `StaticTransformBroadcaster`, `TransformBroadcaster`
 
 ROS2’de tüm bu sınıflar tf2_ros paketinde yer alır ve QoS ayarlarıyla birlikte çalıştırılır.
 
@@ -655,18 +655,18 @@ ROS2’de tüm bu sınıflar tf2_ros paketinde yer alır ve QoS ayarlarıyla bir
 - ROS1 ve ROS2’de RViz (ve 'rviz2') içindeki TF görselleştirme sistemi aynıdır
 
 - TF ağaçlarının doğru yayınlandığını test etmek için:
-  - 'rosrun tf view_frames' → ROS1
-  - 'ros2 run tf2_tools view_frames' → ROS2 (PDF olarak çıkarır)
+  - `rosrun tf view_frames` → ROS1
+  - `ros2 run tf2_tools view_frames` → ROS2 (PDF olarak çıkarır)
 
 ✅ Geçiş Önerileri
-- 'tf::' içeren tüm kodlar 'tf2_ros' yapısına geçirilmelidir
+- `tf::` içeren tüm kodlar `tf2_ros` yapısına geçirilmelidir
 
-- Transform mesaj türü 'geometry_msgs/msg/TransformStamped' olmalıdır
+- Transform mesaj türü `geometry_msgs/msg/TransformStamped` olmalıdır
 
-- Eğer ROS1 kodlarınızda 'tf' kullanıyorsanız ROS2’de bu doğrudan çalışmaz
+- Eğer ROS1 kodlarınızda `tf` kullanıyorsanız ROS2’de bu doğrudan çalışmaz
 
 - Statik dönüşümler için CLI komutlarının ROS2 sürümü kullanılmalı
 
-- 'tf2_ros.Buffer' yapısına alışmak uzun vadede daha güçlü yapı sağlar
+- `tf2_ros.Buffer` yapısına alışmak uzun vadede daha güçlü yapı sağlar
 
-ROS2’de transform sisteminin tamamen 'tf2' üzerine kurulmuş olması sayesinde; daha tutarlı, esnek ve DDS uyumlu bir yapı sağlanmıştır. Doğru TF yapısı, navigasyon, SLAM, robot kolu gibi tüm sistemlerin güvenilir çalışması için temel şarttır.
+ROS2’de transform sisteminin tamamen `tf2` üzerine kurulmuş olması sayesinde; daha tutarlı, esnek ve DDS uyumlu bir yapı sağlanmıştır. Doğru TF yapısı, navigasyon, SLAM, robot kolu gibi tüm sistemlerin güvenilir çalışması için temel şarttır.
