@@ -308,3 +308,79 @@ Bu yapı özellikle ağ üzerinden çalışan robotlar, bulut entegrasyonları v
 ---
 
 ROS2’nin bu gelişmiş özellikleri sayesinde daha modüler, esnek, güvenli ve performanslı robot sistemleri geliştirmek mümkün hale gelir.
+
+---
+
+## 7. Parametre Sistemi ve Dinamik Yapılandırma
+
+Robot uygulamalarında parametre kullanımı, node'ların davranışını yapılandırmak ve çalışma zamanında ayarlamalar yapabilmek açısından kritik öneme sahiptir. ROS1 ve ROS2 bu konuda oldukça farklı yaklaşımlar benimser.
+
+---
+
+### 📦 ROS1 Parametre Yapısı
+
+ROS1'de parametreler, merkezi bir **parametre sunucusu** (parameter server) üzerinde tutulur. Bu yapı:
+- Tüm node'lar tarafından ortak olarak erişilebilir.
+- Parametreler, genellikle `rosparam` komutu veya launch dosyalarıyla tanımlanır.
+- Parametreler `.yaml` dosyalarından yüklenebilir.
+
+**Örnek:**
+```bash
+rosparam set /robot_speed 1.0
+rosparam get /robot_speed
+```
+
+```xml
+<param name="robot_speed" value="1.0" />
+<rosparam file="$(find my_pkg)/config/settings.yaml" />
+```
+Ancak ROS1’de parametre değişikliği genellikle node yeniden başlatılmadan etkili olmaz. Gerçek zamanlı yapılandırma için `dynamic_reconfigure` paketi kullanılır.  
+
+---
+### ⚙️ ROS2 Parametre Sistemi
+
+ROS2’de parametre yönetimi her node için ayrı ayrı yapılır. Global bir parametre sunucusu yerine, her node kendi parametre alanına sahiptir.
+
+**Parametreler:**
+- Node oluşturulurken `declare_parameter()` ile tanımlanır.
+- `ros2 param` aracıyla çalışma zamanında okunabilir veya güncellenebilir.
+- YAML dosyaları launch dosyalarına entegre edilir.
+
+**Örnek:**
+```bash
+ros2 param set /my_node robot_speed 1.0
+ros2 param get /my_node robot_speed
+```
+Launch dosyası ile YAML parametre aktarımı:
+```python
+Node(
+    package='my_pkg',
+    executable='robot_node',
+    name='robot_node',
+    parameters=['config/settings.yaml']
+)
+```
+---
+### 🔄 Parametre Değişimini Dinamik Yönetmek
+
+ROS1’de `dynamic_reconfigure` paketi ile GUI veya terminal üzerinden parametreler anlık olarak değiştirilebilir. Bu, özellikle PID ayarı gibi runtime konfigürasyonlar için kullanışlıdır.
+
+ROS2’de `dynamic_reconfigure` bulunmaz, bunun yerine her node kendi içinde parametre güncellemelerini dinlemek için callback fonksiyonları tanımlar:
+
+```python
+self.add_on_set_parameters_callback(self.param_callback)
+```
+Bu yöntemle parametreler anlık olarak algılanabilir ve node davranışı güncellenebilir.
+
+---
+
+📊 Karşılaştırmalı Özellik Tablosu
+
+| Özellik                   | ROS1                               | ROS2                                     |
+| ------------------------- | ---------------------------------- | ---------------------------------------- |
+| Parametre alanı           | Global parametre sunucusu         | Node'a özel parametreler                 |
+| YAML dosya entegrasyonu   | `<rosparam>` veya `rosparam load`  | Python launch dosyasında `parameters` alanı |
+| Çalışma zamanı değişim    | Yeniden başlatma gerekebilir       | Dinamik olarak desteklenir               |
+| Dinamik yapılandırma      | `dynamic_reconfigure`              | `set_parameters_callback()` fonksiyonu   |
+| Param aracı               | `rosparam`                         | `ros2 param`                             |
+ROS2'nin parametre yapısı daha güvenli, izole ve modülerdir. Node’lar birbirlerinin parametrelerine doğrudan erişemez, bu da hata riskini azaltır ve çoklu robot sistemlerinde parametre karışıklığını önler.
