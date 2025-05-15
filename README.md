@@ -697,6 +697,5 @@ Tüm sistemi doğrudan ROS2’ye geçirmek her zaman mümkün olmayabilir. Bazı
 **Resmi proje sayfası:**  
 👉 https://github.com/ros2/ros1_bridge
 
-> Tam geçiş yapan kullanıcılar için gerekli değildir.
 
 ---
