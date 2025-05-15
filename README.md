@@ -390,82 +390,90 @@ ROS2'nin parametre yapısı daha güvenli, izole ve modülerdir. Node’lar birb
 
 ## 8. Navigasyon, SLAM ve MoveIt Geçişi
 
-Mobil robot sistemlerinde yer bulma, haritalama, rota planlama ve robot kol kontrolü gibi temel işlevler ROS1'de yıllardır `move_base`, `gmapping`, `amcl`, `moveit` gibi paketlerle sağlanıyordu. ROS2 ile birlikte bu paketlerin çoğu **tamamen yeniden yazılmış**, daha modüler ve sürdürülebilir hale getirilmiştir.
+Mobil robot sistemlerinde yer bulma, haritalama, rota planlama ve robot kol kontrolü gibi temel işlevler ROS1'de `move_base`, `gmapping`, `amcl`, `moveit` gibi paketlerle sağlanıyordu. ROS2 ile birlikte bu paketlerin çoğu tamamen yeniden yazılmış ve daha modüler hale getirilmiştir.
 
 ---
 
 ### 🚀 Navigasyon: `move_base` → `Navigation2 (nav2)`
 
-**ROS1'de:**  
-`move_base`, path planning (yol planlama), costmap yönetimi ve local/global planner gibi işlevleri tek bir node içinde birleştirir.
+**ROS1:**  
+`move_base` tüm navigasyon bileşenlerini tek bir node içinde sunar. Geliştirilebilir ancak monolitik bir yapıya sahiptir.
 
-**ROS2'de:**  
-`nav2` sistemi her işlevi bir lifecycle node olarak ayrı bir modülde barındırır. Bu modüler yapı sayesinde:
-- Her bileşen ayrı başlatılıp yönetilebilir.
-- Yeniden başlatma, hata yönetimi kolaylaşır.
-- Parametreler daha kontrollü uygulanır.
-
-**Başlıca bileşenler:**
-- `nav2_bt_navigator`: Behavior Tree temelli karar yapısı
-- `nav2_controller`, `nav2_planner`
-- `nav2_map_server`, `nav2_amcl`, `nav2_costmap_2d`
+**ROS2:**  
+`nav2` (Navigation2) modüler, lifecycle node tabanlı ve behavior tree destekli bir sistemdir. Her bileşen bağımsız node olarak yapılandırılır.
 
 | Özellik                    | ROS1 (`move_base`)         | ROS2 (`nav2`)                    |
 |----------------------------|-----------------------------|----------------------------------|
 | Yapı                       | Tek node, monolitik        | Modüler, lifecycle node’lar     |
 | Path planner               | Plugin tabanlı             | Plugin + behavior tree          |
-| Recovery davranışları      | Statik, sabit              | Behavior Tree ile esnek         |
-| Parametre yönetimi         | YAML veya launch ile       | YAML + dinamik lifecycle        |
-| TF2 bağımlılığı            | Kısmi                      | Tam TF2 tabanlı                 |
+| Recovery davranışları      | Statik                     | BT ile esnek                    |
+| Parametre yönetimi         | Sabit yapı                 | Dinamik lifecycle + YAML        |
+| TF2 entegrasyonu           | Kısmi                      | Tam TF2                         |
+
+---
+
+### 🧩 Navigation2'deki Önemli Bileşenler
+
+- `nav2_amcl`: Yerelleştirme (ROS1 `amcl` karşılığı)
+- `nav2_costmap_2d`: Engel haritalama (ROS1 `costmap_2d`)
+- `nav2_map_server`: Harita yükleyici ve yayınlayıcı (ROS1 `map_server`)
+- `nav2_bt_navigator`: Görev kontrolü için behavior tree sistemi
+- `nav2_lifecycle_manager`: Tüm bileşenleri yaşam döngüsüyle yönetir
+- `nav2_smoother`: Yol yumuşatma (ROS1’de genellikle özel eklentiler gerektirirdi)
 
 ---
 
 ### 🗺️ SLAM: `gmapping` → `slam_toolbox`
 
-**ROS1'de:**  
-`gmapping`, ROS1’in en yaygın kullanılan 2D SLAM çözümüdür. Ancak çok çekirdekli işlemci desteği sınırlıdır, harita güncellemeleri yavaştır.
-
-**ROS2'de:**  
-`slam_toolbox` ile hem çevrim içi (online) hem de çevrim dışı (offline) SLAM desteklenir. Çok çekirdekli işlem, hizmet tabanlı harita kontrolü ve otomatik map optimizasyon özellikleri vardır.
-
 | Özellik                    | ROS1 (`gmapping`)          | ROS2 (`slam_toolbox`)           |
 |----------------------------|-----------------------------|----------------------------------|
 | Gerçek zamanlı SLAM        | Var                          | Var                             |
-| Harita kaydı ve düzenleme  | Sınırlı                      | Dinamik ve interaktif           |
-| Hizmet tabanlı yapı        | Yok                          | Var (`/pause`, `/save_map` vs.) |
-| Performans                 | Tek iş parçacıklı           | Çok çekirdekli destek           |
+| Harita düzenleme           | Sınırlı                      | Dinamik                         |
+| Hizmet destekli kontrol    | Yok                          | Var (`pause`, `save_map`, vb.)  |
+| Performans                 | Düşük (tek çekirdekli)       | Yüksek (çok çekirdekli destek)  |
+
+ROS2’de SLAM için `slam_toolbox`, çevrim içi ve çevrim dışı haritalama, hizmet ile harita kontrolü gibi gelişmiş özelliklerle donatılmıştır.
 
 ---
 
 ### 🤖 MoveIt: `moveit` → `moveit2`
 
-**ROS1'de:**  
-MoveIt, endüstriyel robot kolları ve manipülatörler için kullanılan standart kütüphanedir. `move_group` node’u üzerinden hareket planlama, çarpışma kontrolü ve robot modeli yönetimi yapılır.
-
-**ROS2'de:**  
-`moveit2`, ROS2 API'si ile tamamen uyumlu hale getirilmiş bir porttur. DDS altyapısına uygun hale getirilmiş, `rviz2` ile entegre çalışır. Planlama yapısı ROS1 ile benzer olsa da altyapı yenilenmiştir.
-
 | Özellik                      | ROS1 (`moveit`)             | ROS2 (`moveit2`)                  |
 |------------------------------|------------------------------|------------------------------------|
 | Planlama altyapısı           | OMPL, plugin tabanlı         | Aynı                               |
 | RViz entegrasyonu            | `rviz`                       | `rviz2`                            |
-| Gerçek zamanlı kontrol       | Kısıtlı                      | Daha güçlü API + QoS destekli     |
-| ROS2 lifecycle uyumu         | Yok                          | Var (kısmen)                       |
-| Gazebo kontrol entegrasyonu | `ros_control`                | `ros2_control` ile uyumlu         |
+| Gerçek zamanlı kontrol       | Kısıtlı                      | `moveit_servo` ile daha güçlü     |
+| ROS2 uyumu                   | Yok                          | Tam uyum + QoS desteği            |
+| Görev planlama               | `moveit_task_constructor`    | ROS2 sürümü mevcut                 |
 
 ---
 
-### 📝 Geçiş Önerileri
+### ➕ Diğer Önemli Geçiş Paketleri
 
-- `move_base` sisteminiz varsa `nav2_bringup` paketini referans alın.
-- `gmapping` yerine `slam_toolbox` kullanın ve lifecycle yapılarına alışın.
-- `moveit2` ile robot kol entegrasyonu için `moveit_setup_assistant` kullanmaya devam edebilirsiniz.
-- Launch dosyaları tamamen Python tabanlı olacak şekilde yeniden yapılandırılmalıdır.
-- TF yapınız ROS2 için `tf2_ros` üzerinden güncellenmeli.
+| Amaç                     | ROS1 Paketi           | ROS2 Karşılığı                     |
+|--------------------------|------------------------|------------------------------------|
+| Yerelleştirme            | `amcl`                 | `nav2_amcl`                        |
+| Engel haritası           | `costmap_2d`           | `nav2_costmap_2d`                  |
+| Harita yükleyici         | `map_server`           | `nav2_map_server`                  |
+| Yol yumuşatma            | Genelde özel çözüm     | `nav2_smoother`                    |
+| Görev yönetimi           | Yok                    | `nav2_bt_navigator` (BT tabanlı)   |
+| Planlama görselleştirme  | `moveit_visual_tools`  | `moveit_visual_tools` (uyumlu)     |
+| Servo kontrol            | Kısıtlı                | `moveit_servo`                     |
 
 ---
 
-ROS2 ile birlikte gelen bu yeni yapı ve paketler, yalnızca işlev olarak değil; **performans, bakım kolaylığı ve modülerlik** açısından da ciddi avantajlar sunar.
+### 📝 Geçiş Tavsiyeleri
+
+- `move_base` kullanıyorsanız `nav2_bringup` ile başlamak iyi bir adımdır.
+- SLAM için `slam_toolbox`, hem performans hem kontrol kolaylığı açısından daha gelişmiştir.
+- MoveIt entegrasyonları için `moveit2` ve `moveit_setup_assistant` ROS2 sürümleri mevcuttur.
+- Bileşenler artık lifecycle node olduğu için başlatma/yönetme yapınız değişmelidir.
+- Behavior Tree yapısını öğrenmek, Navigation2 sistemini tam kullanabilmek için kritiktir.
 
 ---
+
+ROS2'nin navigasyon, haritalama ve kol kontrol sistemleri; daha esnek, modüler ve yüksek performanslı bir yapıya geçiş anlamına gelir. Bu sistemleri doğru konfigüre etmek, robotunuzun tüm potansiyelini açığa çıkarmanıza yardımcı olacaktır.
+
+---
+
 
