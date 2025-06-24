@@ -1,0 +1,32 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 60
+    use_sim_time: true
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+      # left_wheel_names: ["rear_left_wheel", "front_left_wheel"]
+      # right_wheel_names: ["rear_right_wheel", "front_right_wheel"]
+      # publish_rate: 50.0
+      # wheel_separation: 0.172      # adjust to match your robot
+      # wheel_radius: 0.09
+      # base_frame_id: base_link
+      # odom_frame_id: odom
+      # cmd_vel_timeout: 0.5
+      # use_stamped_vel: false
+      # use_sim_time: true
+
+
+diff_drive_controller:
+  ros__parameters:
+    left_wheel_names: ["rear_left_wheel", "front_left_wheel"]
+    right_wheel_names: ["rear_right_wheel", "front_right_wheel"]
+    publish_rate: 60.0
+    wheel_separation: 0.172      # adjust to match your robot
+    wheel_radius: 0.09
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    cmd_vel_timeout: 0.5
+    use_stamped_vel: false
+    enable_odom_tf: true
