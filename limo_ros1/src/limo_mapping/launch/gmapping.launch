@@ -1,0 +1,14 @@
+<launch>
+  <param name="use_sim_time" value="true" />
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <param name="base_frame" value="base_link"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="map_update_interval" value="3.0"/>
+    <param name="maxUrange" value="5.0"/>
+    <param name="delta" value="0.05"/>
+    <param name="particles" value="30"/>
+    <remap from="scan" to="limo/scan"/>
+    <rosparam command="load" file="$(find limo_mapping)/config/gmapping_params.yaml"/>
+  </node>
+</launch>

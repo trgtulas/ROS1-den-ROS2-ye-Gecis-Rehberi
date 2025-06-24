@@ -1,0 +1,20 @@
+<launch>
+    <arg name="use_rviz" default="true" />
+    <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager" />
+
+    <include file="$(find moveit_limocobot)/launch/limo_with_arm.launch"/>
+
+    <rosparam file="$(find moveit_limocobot)/config/ros_controllers.yaml" command="load" ns="/arm"/>
+    <rosparam file="$(find moveit_limocobot)/config/trajectory_execution.yaml" command="load"/>
+
+    
+    
+    <include file="$(find moveit_limocobot)/launch/move_group.launch">
+        <arg name="allow_trajectory_execution" value="true"/>
+        <arg name="info" value="true"/>
+    </include>
+    <include file="$(find moveit_limocobot)/launch/moveit_rviz.launch" if="$(arg use_rviz)">
+        <arg name="rviz_config" value="$(find moveit_limocobot)/launch/moveit.rviz"/>
+    </include>
+
+</launch>

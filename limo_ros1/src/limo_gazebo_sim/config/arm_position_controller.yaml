@@ -1,0 +1,36 @@
+arm:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+  arm_controller:
+    type: position/JointTrajectoryController  # Use position_controllers if necessary
+    joints: 
+      - joint2_to_joint1
+      - joint3_to_joint2
+      - joint4_to_joint3
+      - joint5_to_joint4
+      - joint6_to_joint5
+      - joint6output_to_joint6
+  gripper_controller:
+    type: position/JointTrajectoryController  # Use position_controllers if necessary
+    joints:
+      - gripper_controller
+      - gripper_base_to_gripper_left2
+      - gripper_left3_to_gripper_left1
+      - gripper_base_to_gripper_right3
+      - gripper_base_to_gripper_right2
+      - gripper_right3_to_gripper_right1
+  gazebo_ros_control:
+    pid_gains:
+      joint2_to_joint1: {p: 50.0, i: 0.01, d: 0.01}
+      joint3_to_joint2: {p: 50.0, i: 0.01, d: 0.01}
+      joint4_to_joint3: {p: 50.0, i: 0.01, d: 0.01}
+      joint5_to_joint4: {p: 50.0, i: 0.01, d: 0.01}
+      joint6_to_joint5: {p: 50.0, i: 0.01, d: 0.01}
+      joint6output_to_joint6: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_controller: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_base_to_gripper_left2: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_left3_to_gripper_left1: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_base_to_gripper_right3: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_base_to_gripper_right2: {p: 50.0, i: 0.01, d: 0.01}
+      gripper_right3_to_gripper_right1: {p: 50.0, i: 0.01, d: 0.01}

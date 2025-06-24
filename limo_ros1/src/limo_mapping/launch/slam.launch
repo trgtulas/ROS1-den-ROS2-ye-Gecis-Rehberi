@@ -1,0 +1,9 @@
+<launch>
+  <arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+  
+  <include file="$(find limo_mapping)/launch/$(arg slam_methods).launch">
+  </include>
+  
+  <node pkg="rviz" type="rviz" name="rviz" required="true" 
+        args="-d $(find limo_mapping)/rviz/$(arg slam_methods).rviz"/>
+</launch>

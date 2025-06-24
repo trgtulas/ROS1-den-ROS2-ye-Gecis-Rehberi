@@ -1,0 +1,44 @@
+# /gazebo_ros_control/pid_gains:
+#   joint2_to_joint1: {p: 120.0, i: 1.0, d: 0.01}
+#   joint3_to_joint2: {p: 120.0, i: 1.0, d: 0.01}
+#   joint4_to_joint3: {p: 120.0, i: 1.0, d: 0.01}
+#   joint5_to_joint4: {p: 120.0, i: 1.0, d: 0.01}
+#   joint6_to_joint5: {p: 120.0, i: 1.0, d: 0.01}
+#   joint6output_to_joint6: {p: 120.0, i: 1.0, d: 0.01}
+
+# Publish all joint states
+# joint_state_controller:
+#   type: joint_state_controller/JointStateController
+#   publish_rate: 50
+
+# Position controllers and set up PID
+# joint1_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint2_to_joint1
+#   pid: {p: 1000, i: 50, d: 70}
+
+# joint2_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint3_to_joint2
+#   pid: {p: 20000, i: 50, d: 70}
+
+# joint3_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint4_to_joint3
+#   pid: {p: 10000, i: 100, d: 100}
+
+# joint4_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint5_to_joint4
+#   pid: {p: 2000, i: 100, d: 150}
+
+# joint5_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint6_to_joint5
+#   pid: {p: 2000, i: 100, d: 100}
+
+# joint6_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: joint6output_to_joint6
+#   pid: {p: 100, i: 10, d: 0}
+
