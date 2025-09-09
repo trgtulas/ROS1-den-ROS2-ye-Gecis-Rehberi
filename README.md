@@ -1,87 +1,89 @@
-# ROS1'den ROS2'ye Geçiş Rehberi
+# ROS1 to ROS2 Migration Guide
 
-Bu rehber, ROS1 (Noetic) kullanan mobil robot sisteminizi ROS2 (Humble)'a geçirmenize yardımcı olmak için hazırlandı. Rehberimiz, LIDAR ve derinlik kamerası bulunan **LIMCOBOT** isimli mobil robot üzerinde yoğunlaşmaktadır ve Python ile C++ dillerini temel alır. Ayrıca, robotun simülasyonu **Gazebo** ortamında gerçekleştirilerek gerçek donanım öncesi testler yapılacaktır.
+This guide is designed to help you migrate your mobile robot system using ROS1 (Noetic) to ROS2 (Humble). This guide focuses on the mobile robot **LIMCOBOT**, which features LIDAR and a depth camera, and is based on Python and C++. Additionally, the robot will be simulated in the **Gazebo** environment, allowing for pre-installation testing.
 
-## 📌 Hedef Kitle
-Bu rehber, **ROS1 konusunda orta seviye bilgiye sahip** kullanıcılar için hazırlanmıştır ve pratik, örnek tabanlı bir geçiş süreci sunar.
+## 📌 Target Audience
+This guide is designed for users with **intermediate knowledge of ROS1** and provides a practical, example-based migration process.
 
-## 📦 İçerik Başlıkları
+## 📦 Content Headings
 
-- 🔁 ROS1 ve ROS2 arasındaki temel farklar (Noetic → Humble)
-- 🛠️ `colcon` kullanarak ROS2 paket yapısı ve workspace oluşturma
-- 🚀 `.launch` (XML) → Python tabanlı launch dosyası dönüşümü
-- ⚙️ Parametre yönetimi ve dinamik yapılandırma
-- 🔄 TF ve TF2 dönüşümleri
-- 📡 Navigasyon, haritalama ve MoveIt geçişi
-- 🧪 ROS1 ve ROS2 versiyonları ile örnek kodlar
-- 🧭 **Gazebo simülasyonu**: ROS1 vs ROS2 ile simülasyon yapısı
-- 🔗 `ros1_bridge` ile hibrit ortam geçişi
+- 🔁 Key differences between ROS1 and ROS2 (Noetic → Humble)
+- 🛠️ Creating a ROS2 package structure and workspace using `colcon`
+- 🚀 `.launch` (XML) → Python-based launch file conversion
+- ⚙️ Parameter management and dynamic configuration
+- 🔄 TF and TF2 conversions
+- 📡 Navigation, mapping, and MoveIt migration
+- 🧪 Sample code with ROS1 and ROS2 versions
+- 🧭 **Gazebo simulation**: Simulation structure with ROS1 vs. ROS2
+- 🔗 Hybrid environment migration with `ros1_bridge`
 
-## 🧰 Gereksinimler
+## 🧰 Requirements
 
 - Ubuntu 22.04 (Jammy)
-- ROS1 Noetic (karşılaştırma için)
+- ROS1 Noetic (for comparison)
 - ROS2 Humble
-- VSCode (önerilen)
-- colcon, rosdep, vcs vb. araçlar
-- Gazebo (Classic ve Ignition/GZ destekli)
+- VSCode (recommended)
+- Tools like colcon, rosdep, vcs, etc.
+- Gazebo (Classic and Ignition/GZ supported)
 
-## 📁 Dizin Yapısı
+## 📁 Directory Structure
 
-- `docs/`: Teknik dokümantasyon ve geçiş adımları
-- `examples/`: ROS1 ve ROS2 versiyonlarını gösteren örnek kodlar
-- `images/`: Diyagramlar ve ekran görüntüleri
+- `docs/`: Technical documentation and migration steps
+- `examples/`: Sample code showing ROS1 and ROS2 versions
+- `images/`: Diagrams and screenshots
 
-## 🚀 Başlarken
+## 🚀 Getting Started
 
-1. Bu repoyu klonlayın.
-2. `docs/` klasöründeki adımları takip edin.
-3. Örneklerle kendi kod geçişinizi test edin.
+1. Clone this repo.
 
-## 🤝 Katkı Sağlama
+2. Follow the steps in the `docs/` folder.
 
-Topluluk katkılarını memnuniyetle karşılıyoruz! Forklayın, geliştirmelerle veya düzeltmelerle pull request gönderin.
+3. Test your own code migration with the examples.
 
----
+## 🤝 Contributing
 
-ROS sisteminizi modernleştirmeye birlikte başlayalım 🧠🤖
-
---- 
-
-# ROS1 (Noetic) ile ROS2 (Humble) Arasındaki Temel Farklar
-
-Bu bölümde, ROS1 ve ROS2 arasındaki temel mimari farkları, yeni özellikleri ve neden ROS2'ye geçiş yapılması gerektiğini detaylı bir şekilde inceleyeceğiz.
+We welcome community contributions! Fork it, submit a pull request with improvements or fixes.
 
 ---
 
-## 1. Giriş: Neden ROS2?
-
-ROS1, uzun yıllar boyunca robotik alanında standart bir platform haline gelmiştir. Ancak zamanla aşağıdaki eksiklikleri nedeniyle daha sürdürülebilir, güvenli ve modüler bir altyapıya ihtiyaç duyulmuştur:
-
-- **Gerçek zamanlılık desteği eksikliği**
-- **Güvenlik önlemlerinin olmaması**
-- **Çok robotlu sistemlerde sınırlı performans**
-- **Dağıtık sistemlerde esneklik eksikliği**
-
-ROS2, bu eksiklikleri gidermek için sıfırdan tasarlanmıştır. Özellikle **DDS (Data Distribution Service)** altyapısı sayesinde daha esnek, güvenli ve özelleştirilebilir bir iletişim yapısı sunar.
+Let's start modernizing your ROS system together 🧠🤖
 
 ---
 
-## 2. İletişim Altyapısı
+# Key Differences Between ROS1 (Noetic) and ROS2 (Humble)
 
-| Özellik        | ROS1                         | ROS2 (Humble)                     |
-|----------------|------------------------------|-----------------------------------|
-| Protokol       | TCPROS / UDPROS              | DDS tabanlı (FastDDS, CycloneDDS vb.) |
-| QoS Desteği    | Yok                           | Var (reliability, durability, history vs.) |
-| Multicast      | Yok                           | Var                               |
-| Güvenlik       | Harici çözümler gerekir       | SROS2 ile entegre                 |
-| Discovery      | Manuel veya topic bazlı       | Otomatik discovery                |
+In this section, we will examine in detail the key architectural differences between ROS1 and ROS2, the new features, and why switching to ROS2 is necessary.
 
 ---
 
-## 3. Workspace ve Paket Yapısı
+## 1. Introduction: Why ROS2?
 
-ROS2’de workspace yapısı modernleştirilmiştir. `colcon` aracı, bağımsız paketlerin paralel derlenmesini ve yönetimini sağlar.
+ROS1 has become a standard platform in robotics for many years. However, over time, the following shortcomings created the need for a more sustainable, secure, and modular infrastructure:
+
+- **Lack of real-time support**
+- **Lack of security measures**
+- **Limited performance in multi-robot systems**
+- **Lack of flexibility in distributed systems**
+
+ROS2 was designed from the ground up to address these shortcomings. Specifically, thanks to its **DDS (Data Distribution Service)** infrastructure, it offers a more flexible, secure, and customizable communication structure.
+
+---
+
+## 2. Communication Infrastructure
+
+| Feature | ROS1 | ROS2 (Humble) |
+|--|-------------------------------------------|-----------------------------------|
+| Protocol | TCPROS / UDPROS | DDS-based (FastDDS, CycloneDDS, etc.) |
+| QoS Support | No | Yes (reliability, durability, history, etc.) |
+| Multicast | No | Yes |
+| Security | Requires external solutions | Integrates with SROS2 |
+| Discovery | Manual or topic-based | Automatic discovery |
+
+---
+
+## 3. Workspace and Package Structure
+
+The workspace structure has been streamlined in ROS2. The `colcon` tool enables parallel compilation and management of independent packages.
 
 ### ROS1 (catkin)
 ```bash
@@ -98,233 +100,233 @@ colcon build
 
 ---
 
-## 4. 🛠️ Araçlar ve Komut Satırı Karşılaştırması
+## 4. 🛠️ Tools and Command Line Comparison
 
-ROS2 ile birlikte komut satırı araçları büyük ölçüde yeniden yapılandırılmış ve alt komutlara bölünerek daha modüler hale getirilmiştir. Bu sayede her kaynak türü için (topic, service, param, bag, dll.) ayrı araçlar kullanılır.
+With ROS2, command line tools have been significantly restructured and made more modular by being divided into subcommands. This allows separate tools for each resource type (topic, service, param, bag, dll).
 
-#### 🔄 Genel Komut Karşılaştırması
+#### 🔄 General Command Comparison
 
-| İşlem                       | ROS1 Komutu                    | ROS2 Komutu                           |
-|----------------------------|--------------------------------|----------------------------------------|
-| Paket listeleme            | `rospack list`                | `ros2 pkg list`                        |
-| Paket yolu bulma           | `rospack find <pkg>`          | `ros2 pkg prefix <pkg>`               |
-| Node çalıştırma            | `rosrun <pkg> <node>`         | `ros2 run <pkg> <node>`               |
-| Launch dosyası çalıştırma  | `roslaunch <pkg> <file>`      | `ros2 launch <pkg> <file>`            |
+| Process | ROS1 Command | ROS2 Command |
+|---------------------------|----------------------------------------|
+| Package listing | `rospack list` | `ros2 pkg list` |
+| Finding package path | `rospack find <pkg>` | `ros2 pkg prefix <pkg>` |
+| Running a node | `rosrun <pkg> <node>` | `ros2 run <pkg> <node>` |
+| Running a launch file | `roslaunch <pkg> <file>` | `ros2 launch <pkg> <file>` |
 
-#### 📡 Topic İşlemleri
+#### 📡 Topic Actions
 
-| İşlem                       | ROS1                          | ROS2                                  |
-|----------------------------|-------------------------------|----------------------------------------|
-| Listeleme                   | `rostopic list`              | `ros2 topic list`                      |
-| Yayınlanan veri izleme     | `rostopic echo /topic`       | `ros2 topic echo /topic`              |
-| Bilgi görüntüleme          | `rostopic info /topic`       | `ros2 topic info /topic`              |
-| Yayın yapma (manuel)       | `rostopic pub`               | `ros2 topic pub`                      |
-| Test mesaj gönderme        | `rostopic pub -1`            | `ros2 topic pub --once`              |
+| Action | ROS1 | ROS2 |
+|----------------------------|----------------------------|-----------------------------------------|
+| Listing | `rostopic list` | `ros2 topic list` |
+| Monitoring published data | `rostopic echo /topic` | `ros2 topic echo /topic` |
+| Displaying information | `rostopic info /topic` | `ros2 topic info /topic` |
+| Publish (manual) | `rostopic pub` | `ros2 topic pub` |
+| Send test message | `rostopic pub -1` | `ros2 topic pub --once` |
 
-#### 🧪 Service İşlemleri
+#### 🧪 Service Operations
 
-| İşlem                       | ROS1                          | ROS2                                  |
-|----------------------------|-------------------------------|----------------------------------------|
-| Listeleme                   | `rosservice list`            | `ros2 service list`                   |
-| Bilgi görüntüleme          | `rosservice info`            | `ros2 service info`                   |
-| Hizmet çağırma             | `rosservice call`            | `ros2 service call`                   |
-| Hizmet tipi sorgulama      | `rosservice type`            | `ros2 service type`                   |
+| Operation | ROS1 | ROS2 |
+|---------------------------|------------------------------|----------------------------------------|
+| Listing | `rosservice list` | `ros2 service list` |
+| Displaying information | `rosservice info` | `ros2 service info` |
+| Calling a service | `rosservice call` | `ros2 service call` |
+| Querying the service type | `rosservice type` | `ros2 service type` |
 
-#### ⚙️ Parametre İşlemleri
+### ⚙️ Parameter Operations
 
-| İşlem                       | ROS1                          | ROS2                                  |
-|----------------------------|-------------------------------|----------------------------------------|
-| Param listeleme            | `rosparam list`              | `ros2 param list`                     |
-| Param değeri alma          | `rosparam get /param`        | `ros2 param get <node> <param>`       |
-| Param değeri ayarlama      | `rosparam set /param val`    | `ros2 param set <node> <param> val`   |
-| Param dosyasından yükleme  | `rosparam load file.yaml`    | `ros2 launch` ile YAML geçilir        |
+| Operation | ROS1 | ROS2 |
+|----------------------------|----------------------------|----------------------------------------|
+| Listing params | `rosparam list` | `ros2 param list` |
+| Getting param values ​​| `rosparam get /param` | `ros2 param get <node> <param>` |
+| Setting param values ​​| `rosparam set /param val` | `ros2 param set <node> <param> val` |
+| Loading from param file | `rosparam load file.yaml` | Passing YAML with `ros2 launch` |
 
-#### 💾 Bag Kayıt & Oynatma
+#### 💾 Bag Recording & Playback
 
-| İşlem                       | ROS1                          | ROS2                                  |
-|----------------------------|-------------------------------|----------------------------------------|
-| Kayıt başlatma             | `rosbag record -a`            | `ros2 bag record -a`                  |
-| Kaydı oynatma              | `rosbag play file.bag`        | `ros2 bag play file`                  |
-| İçerik görüntüleme         | `rosbag info file.bag`        | `ros2 bag info file`                  |
+| Process | ROS1 | ROS2 |
+|----------------------------|----------------------------|-----------------------------------------|
+| Starting recording | `rosbag record -a` | `ros2 bag record -a` |
+| Playing recording | `rosbag play file.bag` | `ros2 bag play file` |
+| View content | `rosbag info file.bag` | `ros2 bag info file` |
 
-#### 🧩 Mesaj ve Servis Tipleri
+#### 🧩 Message and Service Types
 
-| İşlem                       | ROS1                          | ROS2                                  |
-|----------------------------|-------------------------------|----------------------------------------|
-| Mesaj tipi listeleme       | `rosmsg list`                | `ros2 interface list`                 |
-| Mesaj tipini inceleme      | `rosmsg show <type>`         | `ros2 interface show <type>`          |
-| Hizmet tipi listeleme      | `rossrv list`                | `ros2 interface list` (aynı komut)   |
-| Hizmet tipi gösterme       | `rossrv show <type>`         | `ros2 interface show <type>`         |
+| Process | ROS1 | ROS2 |
+|---------------------------|------------------------------|----------------------------------------|
+| List message types | `rosmsg list` | `ros2 interface list` |
+| View message types | `rosmsg show <type>` | `ros2 interface show <type>` |
+| List service types | `rossrv list` | `ros2 interface list` (same command) |
+| Show service types | `rossrv show <type>` | `ros2 interface show <type>` |
 
 ---
 
-## 5. 🚀 Node ve Launch Yönetimi
+## 5. 🚀 Node and Launch Management
 
-ROS1 ve ROS2 arasında node başlatma ve launch sistemleri anlamında önemli farklar vardır. ROS2, node başlatmayı daha modüler ve programlanabilir hale getirmiştir.
+There are significant differences between ROS1 and ROS2 in terms of node initialization and launch systems. ROS2 made node initialization more modular and programmable.
 
-### 🚀 Launch Dosyaları
+### 🚀 Launch Files
 
-- **ROS1**: `.launch` uzantılı XML dosyaları ile çalışır.
-- **ROS2**: Python tabanlı `.launch.py` dosyaları kullanılır. Bu sayede koşullu işlemler, döngüler ve parametre yönetimi daha dinamik hale gelir.
+- **ROS1**: Works with XML files with the `.launch` extension.
+- **ROS2**: Uses Python-based `.launch.py` files. This allows for more dynamic conditional operations, loops, and parameter management.
 
-**Örnek ROS1 launch dosyası (`start_robot.launch`)**:
+**Sample ROS1 launch file (`start_robot.launch`)**:
 ```xml
-<launch>
-  <node pkg="my_robot" type="robot_node.py" name="robot_node" output="screen" />
+<launch> 
+<node pkg="my_robot" type="robot_node.py" name="robot_node" output="screen" />
 </launch>
 ```
 
-**Aynı yapı ROS2'de Python ile (start_robot.launch.py):**
+**Same structure with Python on ROS2 (start_robot.launch.py):**
 ```python
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
-def generate_launch_description():
-    return LaunchDescription([
-        Node(
-            package='my_robot',
-            executable='robot_node',
-            name='robot_node',
-            output='screen'
-        )
-    ])
+def generate_launch_description(): 
+return LaunchDescription([ 
+Node( 
+package='my_robot', 
+executable='robot_node', 
+name='robot_node', 
+output='screen' 
+) 
+])
 ```
 
 
-### 📦 Node Tanımı: Yapısal Farklılıklar
+### 📦 Node Definition: Structural Differences
 
-##### ROS1 Python Node (örnek)
+##### ROS1 Python Node (example)
 ```python
 #!/usr/bin/env python
 import rospy
 
-def main():
-    rospy.init_node('simple_node')
-    rospy.loginfo("Merhaba ROS1!")
+def main(): 
+rospy.init_node('simple_node') 
+rospy.loginfo("Hello ROS1!")
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__main__': 
+main()
 ```
 
-##### ROS1 Python Node (örnek)
+##### ROS1 Python Node (example)
 ```python
 import rclpy
 from rclpy.node import Node
 
-class SimpleNode(Node):
-    def __init__(self):
-        super().__init__('simple_node')
-        self.get_logger().info("Merhaba ROS2!")
+class SimpleNode(Node): 
+def __init__(self): 
+super().__init__('simple_node') 
+self.get_logger().info("Hello ROS2!")
 
-def main():
-    rclpy.init()
-    node = SimpleNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+def main(): 
+rclpy.init() 
+node = SimpleNode() 
+rclpy.spin(node) 
+node.destroy_node()
+rclpy.shutdown()
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__main__:
+main()
 ```
-#### 🧠 ROS1 ve ROS2 Node Yapısı Karşılaştırması
+#### 🧠 ROS1 and ROS2 Node Structure Comparison
 
-ROS1’de node yapısı basit ve fonksiyon temellidir. `rospy` ile bir node başlatılır ve `spin()` ile çalıştırılır. Modülerlik düşüktür, genellikle küçük projelerde yeterlidir.
+In ROS1, the node structure is simple and function-based. A node is started with `rospy` and run with `spin()`. Modularity is low, but generally sufficient for small projects.
 
-ROS2’de ise node yapısı nesne yönelimlidir (OOP). Her node, `Node` sınıfından türetilir. Bu sayede:
-- Kod daha okunabilir ve modüler olur.
-- Parametre, publisher, subscriber gibi bileşenler sınıf içinde düzenlenir.
-- Test edilebilirlik artar.
-- Lifecycle, QoS, callback yönetimi gibi gelişmiş özellikler entegre edilir.
+In ROS2, the node structure is object-oriented (OOP). Each node inherits from the `Node` class. This:
+- Makes the code more readable and modular.
+- Components such as parameters, publishers, and subscribers are organized within the class.
+- Increases testability.
+- Advanced features such as lifecycle, QoS, and callback management are integrated.
 
-| Özellik                 | ROS1                         | ROS2                           |
+| Feature | ROS1 | ROS2 |
 |--------------------------|------------------------------|---------------------------------|
-| Yapı                     | Fonksiyon temelli            | Sınıf tabanlı (OOP)            |
-| Giriş noktası            | `rospy.init_node()`          | `rclpy.init()`                 |
-| Logger                   | `rospy.loginfo()`            | `self.get_logger().info()`     |
-| Modülerlik               | Düşük                        | Yüksek                         |
-| Kaynak yönetimi          | Otomatik                     | `destroy_node()`, `shutdown()`|
-| Gelişmiş node özellikleri| Yok                          | Var (Lifecycle, Component vs.)|
+| Structure | Function-based | Class-based (OOP) |
+| Entry point | `rospy.init_node()` | `rclpy.init()` |
+| Logger | `rospy.loginfo()` | `self.get_logger().info()` |
+| Modularity | Low | High |
+| Resource management | Automatic | `destroy_node()`, `shutdown()`|
+| Advanced node features | None | Yes (Lifecycle, Component, etc.)|
 
-ROS2, daha büyük ve karmaşık sistemler için daha sürdürülebilir bir node yapısı sunar.
+ROS2 offers a more sustainable node structure for larger and more complex systems.
 
 ---
 
-## 6. ROS2’ye Özgü Gelişmiş Özellikler
+## 6. Advanced Features Unique to ROS2
 
-ROS2, sadece mimari olarak değil, sunduğu gelişmiş özelliklerle de ROS1'e kıyasla çok daha güçlü bir altyapı sunar. Bu özellikler özellikle endüstriyel ve büyük ölçekli uygulamalar için tasarlanmıştır.
+ROS2 offers a much more robust infrastructure compared to ROS1, not only in terms of architecture but also in terms of advanced features. These features are designed specifically for industrial and large-scale applications.
 
 ---
 
 ### 🔄 Lifecycle Nodes
 
-ROS2, node'ların durum yönetimini standart hale getirmek için **lifecycle node** yapısını sunar. Bu yapıda bir node, belirli durumlar arasında kontrollü olarak geçiş yapar:
+ROS2 introduces the **lifecycle node** structure to standardize node state management. In this structure, a node transitions between specific states in a controlled manner:
 
 - `unconfigured`
 - `inactive`
 - `active`
 - `finalized`
 
-Bu sayede:
-- Node'lar sistem hazır olduğunda aktifleştirilir.
-- Hatalı durumlarda node pasifleştirilip tekrar başlatılabilir.
-- Sistem kontrolü daha güvenli ve yapılandırılabilir hale gelir.
+This allows:
+- Nodes to be activated when the system is ready.
+- Nodes can be deactivated and restarted in case of errors.
+- System control becomes more secure and configurable.
 
 ---
 
 ### 🧩 Component Nodes
 
-**Component node** özelliği sayesinde aynı proseste birden fazla node çalıştırmak mümkündür. Bu yapı:
-- Bellek kullanımını azaltır
-- Başlatma süresini kısaltır
-- Aynı uygulama içinde dinamik olarak node eklemeyi mümkün kılar
+The **component node** feature allows multiple nodes to be run in the same process. This structure:
+- Reduces memory usage
+- Reduces startup time
+- Enables dynamically adding nodes within the same application
 
-Özellikle **embedded sistemler** ve **çok modüllü robotik yazılımlar** için oldukça faydalıdır.
+It is particularly useful for **embedded systems** and **multi-module robotics software**.
 
 ---
 
-### 📶 QoS (Quality of Service) Profilleri
+### 📶 QoS (Quality of Service) Profiles
 
-ROS2, veri iletişiminde hassas ayarlar yapılabilmesi için **QoS profilleri** sunar. Bu profiller, her topic veya servis için farklı iletim politikaları tanımlamanıza imkân tanır.
+ROS2 offers **QoS profiles** for fine-tuning data communication. These profiles allow you to define different transmission policies for each topic or service.
 
-Örneğin:
-- **reliability**: `reliable` (güvenilir) vs `best_effort` (kayıp olabilir)
-- **durability**: `volatile` (sadece aktif abone varsa) vs `transient_local` (önceki veriler tutulur)
+For example:
+- **reliability**: `reliable` (reliable) vs `best_effort` (may experience loss)
+- **durability**: `volatile` (only if there are active subscribers) vs `transient_local` (previous data is retained)
 - **history**: `keep_last`, `keep_all`
 
-Bu sayede her kullanım senaryosuna özel iletişim şekli tanımlanabilir.
+This allows you to define a specific communication style for each usage scenario.
 
 ---
 
-### 🔐 SROS2: Güvenli ROS
+### 🔐 SROS2: Secure ROS
 
-ROS2, DDS altyapısını kullanarak **güvenli iletişim** (Security ROS 2 - SROS2) imkânı sağlar. Özellikler şunlardır:
+ROS2 provides **secure communication** (Security ROS 2 - SROS2) using the DDS infrastructure. Features include:
 
-- Veri şifreleme (encryption)
-- Kimlik doğrulama (authentication)
-- Yetkilendirme (authorization)
+- Data encryption
+- Authentication
+- Authorization
 
-Bu yapı özellikle ağ üzerinden çalışan robotlar, bulut entegrasyonları ve savunma sanayi gibi kritik alanlarda büyük önem taşır.
-
----
-
-ROS2’nin bu gelişmiş özellikleri sayesinde daha modüler, esnek, güvenli ve performanslı robot sistemleri geliştirmek mümkün hale gelir.
+This structure is particularly important in critical areas such as networked robots, cloud integrations, and the defense industry.
 
 ---
 
-## 7. Parametre Sistemi ve Dinamik Yapılandırma
-
-Robot uygulamalarında parametre kullanımı, node'ların davranışını yapılandırmak ve çalışma zamanında ayarlamalar yapabilmek açısından kritik öneme sahiptir. ROS1 ve ROS2 bu konuda oldukça farklı yaklaşımlar benimser.
+Thanks to these advanced features of ROS2, it becomes possible to develop more modular, flexible, secure, and high-performance robot systems.
 
 ---
 
-### 📦 ROS1 Parametre Yapısı
+## 7. Parameter System and Dynamic Configuration
 
-ROS1'de parametreler, merkezi bir **parametre sunucusu** (parameter server) üzerinde tutulur. Bu yapı:
-- Tüm node'lar tarafından ortak olarak erişilebilir.
-- Parametreler, genellikle `rosparam` komutu veya launch dosyalarıyla tanımlanır.
-- Parametreler `.yaml` dosyalarından yüklenebilir.
+Using parameters in robot applications is critical for configuring node behavior and making runtime adjustments. ROS1 and ROS2 take quite different approaches in this regard.
 
-**Örnek:**
+---
+
+### 📦 ROS1 Parameter Structure
+
+In ROS1, parameters are stored on a central **parameter server**. This structure:
+- Is shared and accessible by all nodes.
+- Parameters are typically defined with the `rosparam` command or launch files.
+- Parameters can be loaded from `.yaml` files.
+
+**Example:**
 ```bash
 rosparam set /robot_speed 1.0
 rosparam get /robot_speed
@@ -334,198 +336,198 @@ rosparam get /robot_speed
 <param name="robot_speed" value="1.0" />
 <rosparam file="$(find my_pkg)/config/settings.yaml" />
 ```
-Ancak ROS1’de parametre değişikliği genellikle node yeniden başlatılmadan etkili olmaz. Gerçek zamanlı yapılandırma için `dynamic_reconfigure` paketi kullanılır.  
+However, in ROS1, parameter changes generally do not take effect until the node is restarted. The `dynamic_reconfigure` package is used for real-time configuration.
 
 ---
-### ⚙️ ROS2 Parametre Sistemi
+### ⚙️ ROS2 Parameter System
 
-ROS2’de parametre yönetimi her node için ayrı ayrı yapılır. Global bir parametre sunucusu yerine, her node kendi parametre alanına sahiptir.
+In ROS2, parameter management is performed on a per-node basis. Instead of a global parameter server, each node has its own parameter space.
 
-**Parametreler:**
-- Node oluşturulurken `declare_parameter()` ile tanımlanır.
-- `ros2 param` aracıyla çalışma zamanında okunabilir veya güncellenebilir.
-- YAML dosyaları launch dosyalarına entegre edilir.
+**Parameters:**
+- They are defined with `declare_parameter()` when creating the node.
+- Can be read or updated at runtime with the `ros2 param` tool.
+- YAML files are integrated into launch files.
 
-**Örnek:**
+**Example:**
 ```bash
 ros2 param set /my_node robot_speed 1.0
 ros2 param get /my_node robot_speed
 ```
-Launch dosyası ile YAML parametre aktarımı:
+YAML parameter transfer with a launch file:
 ```python
 Node(
-    package='my_pkg',
-    executable='robot_node',
-    name='robot_node',
-    parameters=['config/settings.yaml']
+package='my_pkg',
+executable='robot_node',
+name='robot_node',
+parameters=['config/settings.yaml']
 )
 ```
 ---
-### 🔄 Parametre Değişimini Dinamik Yönetmek
+### 🔄 Dynamically Managing Parameter Changes
 
-ROS1’de `dynamic_reconfigure` paketi ile GUI veya terminal üzerinden parametreler anlık olarak değiştirilebilir. Bu, özellikle PID ayarı gibi runtime konfigürasyonlar için kullanışlıdır.
+In ROS1, parameters can be changed instantly via the GUI or terminal with the `dynamic_reconfigure` package. This is especially useful for runtime configurations such as PID tuning.
 
-ROS2’de `dynamic_reconfigure` bulunmaz, bunun yerine her node kendi içinde parametre güncellemelerini dinlemek için callback fonksiyonları tanımlar:
+ROS2 lacks `dynamic_reconfigure`; instead, each node defines callback functions to listen for parameter updates:
 
 ```python
 self.add_on_set_parameters_callback(self.param_callback)
 ```
-Bu yöntemle parametreler anlık olarak algılanabilir ve node davranışı güncellenebilir.
+With this method, parameters can be detected instantly and node behavior can be updated.
 
 ---
 
-📊 Karşılaştırmalı Özellik Tablosu
+📊 Versus Interchangeable Property Table
 
-| Özellik                   | ROS1                               | ROS2                                     |
-| ------------------------- | ---------------------------------- | ---------------------------------------- |
-| Parametre alanı           | Global parametre sunucusu         | Node'a özel parametreler                 |
-| YAML dosya entegrasyonu   | `<rosparam>` veya `rosparam load`  | Python launch dosyasında `parameters` alanı |
-| Çalışma zamanı değişim    | Yeniden başlatma gerekebilir       | Dinamik olarak desteklenir               |
-| Dinamik yapılandırma      | `dynamic_reconfigure`              | `set_parameters_callback()` fonksiyonu   |
-| Param aracı               | `rosparam`                         | `ros2 param`                             |
+| Property | ROS1 | ROS2 |
+| ------------------------- | ------------------------------------- | ---------------------------------------- |
+| Parameter field | Global parameter server | Node-specific parameters |
+| YAML file integration | `<rosparam>` or `rosparam load` | `parameters` field in Python launch file |
+| Runtime change | Restart may be required | Dynamically supported |
+| Dynamic configuration | `dynamic_reconfigure` | `set_parameters_callback()` function |
+| Param tool | `rosparam` | `ros2 param` |
 
-ROS2'nin parametre yapısı daha güvenli, izole ve modülerdir. Node’lar birbirlerinin parametrelerine doğrudan erişemez, bu da hata riskini azaltır ve çoklu robot sistemlerinde parametre karışıklığını önler.
-
----
-
-## 8. Navigasyon, SLAM ve MoveIt Geçişi
-
-Mobil robot sistemlerinde yer bulma, haritalama, rota planlama ve robot kol kontrolü gibi temel işlevler ROS1'de `move_base`, `gmapping`, `amcl`, `moveit` gibi paketlerle sağlanıyordu. ROS2 ile birlikte bu paketlerin çoğu tamamen yeniden yazılmış ve daha modüler hale getirilmiştir.
+ROS2's parameter structure is more secure, isolated, and modular. Nodes cannot directly access each other's parameters, reducing the risk of errors and preventing parameter confusion in multi-robot systems.
 
 ---
 
-### 🚀 Navigasyon: `move_base` → `Navigation2 (nav2)`
+## 8. Navigation, SLAM, and MoveIt Migration
 
-**ROS1:**  
-`move_base` tüm navigasyon bileşenlerini tek bir node içinde sunar. Geliştirilebilir ancak monolitik bir yapıya sahiptir.
+Basic functions such as localization, mapping, route planning, and robot arm control in mobile robot systems were provided in ROS1 by packages such as `move_base`, `gmapping`, `amcl`, and `moveit`. With ROS2, most of these packages have been completely rewritten and made more modular.
 
-**ROS2:**  
-`nav2` (Navigation2) modüler, lifecycle node tabanlı ve behavior tree destekli bir sistemdir. Her bileşen bağımsız node olarak yapılandırılır.
+---
 
-| Özellik                    | ROS1 (`move_base`)         | ROS2 (`nav2`)                    |
+### 🚀 Navigation: `move_base` → `Navigation2 (nav2)`
+
+**ROS1:**
+`move_base` provides all navigation components in a single node. It is extensible but has a monolithic structure.
+
+**ROS2:**
+`nav2` (Navigation2) is a modular, node-based lifecycle system with behavior tree support. Each component is configured as an independent node.
+
+| Feature | ROS1 (`move_base`) | ROS2 (`nav2`) |
 |----------------------------|-----------------------------|----------------------------------|
-| Yapı                       | Tek node, monolitik        | Modüler, lifecycle node’lar     |
-| Path planner               | Plugin tabanlı             | Plugin + behavior tree          |
-| Recovery davranışları      | Statik                     | BT ile esnek                    |
-| Parametre yönetimi         | Sabit yapı                 | Dinamik lifecycle + YAML        |
-| TF2 entegrasyonu           | Kısmi                      | Tam TF2                         |
+| Structure | Single node, monolithic | Modular, lifecycle nodes |
+| Path planner | Plugin-based | Plugin + behavior tree |
+| Recovery behaviors | Static | Flexible with IT |
+| Parameter management | Fixed structure | Dynamic lifecycle + YAML |
+| TF2 integration | Partial | Full TF2 |
 
 ---
 
-### 🧩 Navigation2'deki Önemli Bileşenler
+### 🧩 Key Components in Navigation2
 
-- `nav2_amcl`: Yerelleştirme (ROS1 `amcl` karşılığı)
-- `nav2_costmap_2d`: Engel haritalama (ROS1 `costmap_2d`)
-- `nav2_map_server`: Harita yükleyici ve yayınlayıcı (ROS1 `map_server`)
-- `nav2_bt_navigator`: Görev kontrolü için behavior tree sistemi
-- `nav2_lifecycle_manager`: Tüm bileşenleri yaşam döngüsüyle yönetir
-- `nav2_smoother`: Yol yumuşatma (ROS1’de genellikle özel eklentiler gerektirirdi)
+- `nav2_amcl`: Localization (ROS1 `amcl` equivalent)
+- `nav2_costmap_2d`: Obstacle mapping (ROS1 `costmap_2d`)
+- `nav2_map_server`: Map loader and publisher (ROS1 `map_server`)
+- `nav2_bt_navigator`: Behavior tree system for mission control
+- `nav2_lifecycle_manager`: Manages all components with their lifecycle
+- `nav2_smoother`: Path smoothing (usually required special plugins in ROS1)
 
 ---
 
 ### 🗺️ SLAM: `gmapping` → `slam_toolbox`
 
-| Özellik                    | ROS1 (`gmapping`)          | ROS2 (`slam_toolbox`)           |
-|----------------------------|-----------------------------|----------------------------------|
-| Gerçek zamanlı SLAM        | Var                          | Var                             |
-| Harita düzenleme           | Sınırlı                      | Dinamik                         |
-| Hizmet destekli kontrol    | Yok                          | Var (`pause`, `save_map`, vb.)  |
-| Performans                 | Düşük (tek çekirdekli)       | Yüksek (çok çekirdekli destek)  |
+| Feature | ROS1 (`gmapping`) | ROS2 (`slam_toolbox`) |
+|----------------------------|----------------------------|-----------------------------------|
+| Real-time SLAM | Yes | Yes |
+| Map editing | Limited | Dynamic |
+| Service-assisted control | No | Yes (`pause`, `save_map`, etc.) |
+| Performance | Low (single-core) | High (multi-core support) |
 
-ROS2’de SLAM için `slam_toolbox`, çevrim içi ve çevrim dışı haritalama, hizmet ile harita kontrolü gibi gelişmiş özelliklerle donatılmıştır.
+`slam_toolbox` for SLAM in ROS2 is equipped with advanced features such as online and offline mapping, map control with a service.
 
 ---
 
 ### 🤖 MoveIt: `moveit` → `moveit2`
 
-| Özellik                      | ROS1 (`moveit`)             | ROS2 (`moveit2`)                  |
+| Feature | ROS1 (`moveit`) | ROS2 (`moveit2`) |
 |------------------------------|------------------------------|------------------------------------|
-| Planlama altyapısı           | OMPL, plugin tabanlı         | Aynı                               |
-| RViz entegrasyonu            | `rviz`                       | `rviz2`                            |
-| Gerçek zamanlı kontrol       | Kısıtlı                      | `moveit_servo` ile daha güçlü     |
-| ROS2 uyumu                   | Yok                          | Tam uyum + QoS desteği            |
-| Görev planlama               | `moveit_task_constructor`    | ROS2 sürümü mevcut                 |
+| Planning framework | OMPL, plugin-based | Same |
+| RViz integration | `rviz` | `rviz2` |
+| Real-time control | Limited | More powerful with `moveit_servo` |
+| ROS2 compatibility | None | Full compatibility + QoS support |
+| Task scheduling | `moveit_task_constructor` | ROS2 version available |
 
 ---
 
-### ➕ Diğer Önemli Geçiş Paketleri
+### ➕ Other Important Migration Packages
 
-| Amaç                     | ROS1 Paketi           | ROS2 Karşılığı                     |
-|--------------------------|------------------------|------------------------------------|
-| Yerelleştirme            | `amcl`                 | `nav2_amcl`                        |
-| Engel haritası           | `costmap_2d`           | `nav2_costmap_2d`                  |
-| Harita yükleyici         | `map_server`           | `nav2_map_server`                  |
-| Yol yumuşatma            | Genelde özel çözüm     | `nav2_smoother`                    |
-| Görev yönetimi           | Yok                    | `nav2_bt_navigator` (BT tabanlı)   |
-| Planlama görselleştirme  | `moveit_visual_tools`  | `moveit_visual_tools` (uyumlu)     |
-| Servo kontrol            | Kısıtlı                | `moveit_servo`                     |
-
----
-
-### 📝 Geçiş Tavsiyeleri
-
-- `move_base` kullanıyorsanız `nav2_bringup` ile başlamak iyi bir adımdır.
-- SLAM için `slam_toolbox`, hem performans hem kontrol kolaylığı açısından daha gelişmiştir.
-- MoveIt entegrasyonları için `moveit2` ve `moveit_setup_assistant` ROS2 sürümleri mevcuttur.
-- Bileşenler artık lifecycle node olduğu için başlatma/yönetme yapınız değişmelidir.
-- Behavior Tree yapısını öğrenmek, Navigation2 sistemini tam kullanabilmek için kritiktir.
+| Purpose | ROS1 Package | ROS2 Counterpart |
+|---------------------------|------------------------|-------------------------------------|
+| Localization | `amcl` | `nav2_amcl` |
+| Obstacle map | `costmap_2d` | `nav2_costmap_2d` |
+| Map loader | `map_server` | `nav2_map_server` |
+| Path smoothing | Usually custom solution | `nav2_smoother` |
+| Task management | None | `nav2_bt_navigator` (BT-based) |
+| Planning Visualization | `moveit_visual_tools` | `moveit_visual_tools` (compatible) |
+| Servo Control | Restricted | `moveit_servo` |
 
 ---
 
-ROS2'nin navigasyon, haritalama ve kol kontrol sistemleri; daha esnek, modüler ve yüksek performanslı bir yapıya geçiş anlamına gelir. Bu sistemleri doğru konfigüre etmek, robotunuzun tüm potansiyelini açığa çıkarmanıza yardımcı olacaktır.
+### 📝 Migration Recommendations
+
+- If you're using `move_base`, starting with `nav2_bringup` is a good step.
+- For SLAM, `slam_toolbox` is more advanced in terms of both performance and ease of control.
+- For MoveIt integrations, `moveit2` and `moveit_setup_assistant` are available in ROS2.
+- Because the components are now lifecycle nodes, your initialization/management structure should change.
+- Learning the Behavior Tree structure is critical to fully utilize the Navigation2 system.
 
 ---
 
-## 9. Gazebo Simülasyonu: ROS1 vs ROS2
-
-Gazebo, robotların sanal ortamlarda test edilmesini sağlayan güçlü bir fizik motorudur. Hem ROS1 hem de ROS2 ile entegre çalışabilir, ancak entegrasyon yapısı ve kullanılan araçlar zamanla değişmiştir. ROS2 ile birlikte **Gazebo Classic** (eski adıyla Gazebo) yanında **Ignition (GZ) Gazebo** sistemleri de desteklenmeye başlamıştır.
+ROS2's navigation, mapping, and arm control systems represent a transition to a more flexible, modular, and high-performance architecture. Correctly configuring these systems will help you unlock your robot's full potential.
 
 ---
 
-### 🏗️ Genel Mimarideki Değişiklikler
+## 9. Gazebo Simulation: ROS1 vs. ROS2
 
-| Özellik                     | ROS1 (Noetic)                    | ROS2 (Humble)                                |
-|-----------------------------|----------------------------------|----------------------------------------------|
-| Entegre simülasyon aracı    | `gazebo_ros`                     | `gazebo_ros_pkgs`, `gz_ros2_control`, `ros_ign` |
-| Desteklenen Gazebo sürümü   | Gazebo Classic                   | Gazebo Classic + Ignition (GZ)               |
-| Kontrol altyapısı           | `ros_control` + `gazebo_ros_control` | `ros2_control` + `gz_ros2_control`      |
-| Robot dosyaları             | `.urdf`, `.xacro`                | Aynı, ancak `ros2_control` ile daha entegre  |
-| Sensor plugin yapısı        | XML + `.gazebo` tag’leri         | Aynı mantıkta, ama ROS2 API ile uyumlu       |
+Gazebo is a powerful physics engine that allows testing robots in virtual environments. It can be integrated with both ROS1 and ROS2, but the integration structure and tools used have changed over time. With ROS2, **Gazebo Classic** (formerly Gazebo) as well as **Ignition (GZ) Gazebo** systems are now supported.
 
 ---
 
-### ⚙️ ROS1’de Gazebo Simülasyonu
+### 🏗️ General Architecture Changes
 
-ROS1'de tipik bir simülasyon sistemi şu parçaları içerir:
-- `gazebo_ros` paketi
-- `.world` dosyaları (ortamlar)
-- `.urdf` veya `.xacro` ile tanımlanmış robot
-- `ros_control` ile donanım arayüzü
-- Sensor plugin’leri (örneğin: `gazebo_ros_camera`, `gazebo_ros_laser`)
+| Feature | ROS1 (Noetic) | ROS2 (Humble) |
+|---------------------------|------------------------|-------------------------------------------|
+| Integrated simulation tool | `gazebo_ros` | `gazebo_ros_pkgs`, `gz_ros2_control`, `ros_ign` |
+| Supported Gazebo version | Gazebo Classic | Gazebo Classic + Ignition (GZ) |
+| Control infrastructure | `ros_control` + `gazebo_ros_control` | `ros2_control` + `gz_ros2_control` |
+| Robot files | `.urdf`, `.xacro` | Same, but more integrated with `ros2_control` |
+| Sensor plugin structure | XML + `.gazebo` tags | Same logic, but compatible with the ROS2 API |
 
-**Launch dosyası örneği (ROS1):**
+---
+
+### ⚙️ Gazebo Simulation in ROS1
+
+A typical simulation system in ROS1 includes the following components:
+- `gazebo_ros` package
+- `.world` files (environments)
+- Robot defined with `.urdf` or `.xacro`
+- Hardware interface with `ros_control`
+- Sensor plugins (e.g.: `gazebo_ros_camera`, `gazebo_ros_laser`)
+
+**Launch file example (ROS1):**
 ```xml
 <launch>
-  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
-  <param name="robot_description" command="$(find xacro)/xacro $(find my_robot)/urdf/my_robot.urdf.xacro" />
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model my_robot" />
+<include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+<param name="robot_description" command="$(find xacro)/xacro $(find my_robot)/urdf/my_robot.urdf.xacro" />
+<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model my_robot" />
 </launch>
 ```
 
---- 
+---
 
-### ⚙️ ROS2’de Gazebo Simülasyonu
+### ⚙️ Gazebo Simulation in ROS2
 
-ROS2’de yapı daha modüler ve standart hale gelmiştir. `gazebo_ros_pkgs` ROS2 için portlanmıştır, ayrıca `gz_ros2_control` paketi sayesinde robot kontrolü çok daha entegre çalışır.
+In ROS2, the structure has become more modular and standardized. `gazebo_ros_pkgs` has been ported for ROS2, and robot control is much more integrated thanks to the `gz_ros2_control` package.
 
-ROS2'nin desteklediği başlıca simülasyon yapı taşları:
+The main simulation building blocks supported by ROS2 are:
 
-- **gazebo_ros**: Temel Gazebo-ROS bağlantısı  
-- **ros2_control**: ROS2 tabanlı donanım arayüzü  
-- **gz_ros2_control**: Gazebo ile ros2_control arasında bağlantı sağlar  
-- **ros_ign**: GZ (Ignition) simülasyon sistemleri için ROS arayüzü  
+- **gazebo_ros**: Basic Gazebo-ROS interface
+- **ros2_control**: ROS2-based hardware interface
+- **gz_ros2_control**: Provides a connection between Gazebo and ros2_control
+- **ros_ign**: ROS interface for GZ (Ignition) simulation systems
 
-### Launch dosyası örneği (ROS2):
+### Launch file example (ROS2):
 ```python
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -533,86 +535,86 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    return LaunchDescription([
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                get_package_share_directory('gazebo_ros'), '/launch/gazebo.launch.py']),
-        ),
-    ])
+return LaunchDescription([
+IncludeLaunchDescription(
+PythonLaunchDescriptionSource([
+get_package_share_directory('gazebo_ros'), '/launch/gazebo.launch.py']),
+),
+])
 ```
 
-### 🔌 Donanım ve Sensör Entegrasyonu
+### 🔌 Hardware and Sensor Integration
 
-| Özellik             | ROS1                              | ROS2                                         |
-| ------------------- | --------------------------------- | -------------------------------------------- |
-| LIDAR               | `gazebo_ros_laser` plugin         | Aynı XML formatı, ROS2’ye uyumlu hale getirildi |
-| Kamera              | `gazebo_ros_camera`               | `gazebo_ros_camera` (ROS2 portu)             |
-| Donanım kontrolü    | `ros_control + effort/joint`      | `ros2_control + gz_ros2_control`             |
-| Plugin yükleme      | URDF içinde `<gazebo>` tag’leri   | Aynı yöntemle çalışır                        |
+| Feature | ROS1 | ROS2 |
+| -------------------------------- | --------------------------------- | -------------------------------------------- |
+| LIDAR | `gazebo_ros_laser` plugin | Same XML format, made compatible for ROS2 |
+| Camera | `gazebo_ros_camera` | `gazebo_ros_camera` (ROS2 port) |
+| Hardware control | `ros_control + effort/joint` | `ros2_control + gz_ros2_control` |
+| Plugin installation | `<gazebo>` tags in URDF | Works the same way |
 
-### 🛠️ Geçiş Tavsiyeleri
+### 🛠️ Migration Recommendations
 
-- Gazebo Classic kullanıyorsan, ROS1’deki yapı doğrudan ROS2’ye portlanabilir.  
-- Yeni sistemler için `ros2_control + gz_ros2_control` kullanmak daha performanslı ve sürdürülebilirdir.  
-- Sensor plugin’leri için ROS2 uyumlu versiyonlar (aynı isimle) kullanılmalı.  
-- `xacro` ve `robot_state_publisher` yapısı ROS2'de aynı kalır, sadece launch sistemi Python’a geçmiştir.  
+- If you are using Gazebo Classic, the ROS1 architecture can be ported directly to ROS2.
+- For new systems, using `ros2_control + gz_ros2_control` is more performant and maintainable.
+- ROS2-compatible versions (with the same name) should be used for sensor plugins.
+- The `xacro` and `robot_state_publisher` structures remain the same in ROS2, only the launch system has been switched to Python.
 
-### 🎯 Özet
+### 🎯 Summary
 
-| Özellik                    | ROS1 (Noetic)             | ROS2 (Humble)                               |
+| Feature | ROS1 (Noetic) | ROS2 (Humble) |
 | -------------------------- | ------------------------- | -------------------------------------------- |
-| Simülasyon altyapısı       | `gazebo_ros`              | `gazebo_ros_pkgs`, `gz_ros2_control`         |
-| Kontrol sistemi            | `ros_control`             | `ros2_control`                               |
-| Sensör eklentileri         | Plugin tabanlı            | Aynı, ROS2 uyumlu versiyonları               |
-| Launch formatı             | XML (`.launch`)           | Python (`.launch.py`)                        |
-| Robot tanımı               | `.urdf`, `.xacro`         | Aynı                                         |
-| GZ (Ignition) desteği      | Yok                       | Var (`ros_ign`, `gz_ros2_bridge`)            |
+| Simulation infrastructure | `gazebo_ros` | `gazebo_ros_pkgs`, `gz_ros2_control` |
+| Control system | `ros_control` | `ros2_control` |
+| Sensor plugins | Plugin-based | Same, ROS2-compatible versions |
+| Launch format | XML (`.launch`) | Python (`.launch.py`) |
+| Robot description | `.urdf`, `.xacro` | Same |
+| GZ (Ignition) support | No | Yes (`ros_ign`, `gz_ros2_bridge`) |
 
-ROS2’de simülasyon sistemi sadece port edilmekle kalmamış, aynı zamanda donanım kontrolü, parametrik yönetim ve launch altyapısı açısından daha esnek ve güçlü hale getirilmiştir. Gerçek robottan önce güvenli test ortamı sağlamak için Gazebo entegrasyonu hâlâ vazgeçilmezdir.  
-
----
-
-## 10. TF ve TF2 Kullanımı
-
-Robot sistemlerinde sensör verilerini, robot parçalarının konumlarını ve hareketli nesneleri doğru şekilde ilişkilendirmek için **TF (Transform)** sistemine ihtiyaç duyulur. TF, farklı koordinat sistemleri (örneğin: `base_link`, `laser`, `odom`, `map`) arasında dönüşüm sağlar. ROS1 ve ROS2'de bu sistemin yapısı farklıdır.
+In ROS2, the simulation system has not only been ported, but also made more flexible and powerful in terms of hardware control, parametric management, and launch infrastructure. Gazebo integration is still indispensable for providing a safe testing environment before the real robot.
 
 ---
 
-### 🔄 ROS1: `tf` ve `tf2` Karışık Kullanımı
+## 10. Using TF and TF2
 
-ROS1’de hem `tf` hem de `tf2` kütüphaneleri kullanılabilir:
-- `tf` eski sistem, basit ama sınırlı
-- `tf2` daha modern ve önerilen sistemdir
-- Her iki sistem de uzun süre birlikte kullanılmıştır
+The TF (Transform) system is needed to accurately correlate sensor data, the positions of robot parts, and moving objects in robot systems. TF provides transformation between different coordinate systems (e.g., `base_link`, `laser`, `odom`, `map`). The structure of this system is different in ROS1 and ROS2.
 
-**Yaygın kullanım:**
+---
+
+### 🔄 ROS1: Mixed Use of `tf` and `tf2`
+
+In ROS1, both `tf` and `tf2` libraries can be used:
+- `tf` is the old system, simple but limited
+- `tf2` is the more modern and recommended system
+- Both systems have been used together for a long time
+
+**Common usage:**
 - `tf::TransformListener`, `tf::TransformBroadcaster` (`tf`)
 - `tf2_ros::Buffer`, `tf2_ros::TransformListener` (`tf2`)
 
 ---
 
-### 🔁 ROS2: Sadece `tf2`
+### 🔁 ROS2: Only `tf2`
 
-ROS2 ile birlikte TF sistemi tamamen **`tf2` üzerine inşa edilmiştir**:
-- `tf` artık desteklenmez
-- Tüm broadcast ve lookup işlemleri `tf2_ros` üzerinden yapılır
-- Static ve dynamic transform yayıncıları lifecycle uyumludur
-
----
-
-### 📌 Yayma (Broadcast) ve Dinleme (Listen) Farkları
-
-| İşlem                   | ROS1                             | ROS2                                |
-|--------------------------|----------------------------------|-------------------------------------|
-| Static transform yayma   | `static_transform_publisher` CLI veya node | `ros2 run tf2_ros static_transform_publisher` |
-| Dinamik transform yayma  | `tf::TransformBroadcaster`      | `tf2_ros.TransformBroadcaster`     |
-| Dönüşüm dinleme          | `tf::TransformListener`         | `tf2_ros.TransformListener`        |
-| TF2 desteği              | Opsiyonel                        | Varsayılan ve zorunlu              |
-| Mesaj türü               | `tf`/`tfMessage`                | `geometry_msgs/msg/TransformStamped` |
+With ROS2, the TF system is completely built on **tf2`**:
+- `tf` is no longer supported
+- All broadcast and lookup operations This is done via `tf2_ros`
+- Static and dynamic transform publishers are lifecycle compatible.
 
 ---
 
-### 🧪 Static Transform CLI Karşılaştırması
+### 📌 Broadcast and Listen Differences
+
+| Process | ROS1 | ROS2 |
+|------------------------|-------------------------------------|-------------------------------------|
+| Static transform propagation | `static_transform_publisher` CLI or node | `ros2 run tf2_ros static_transform_publisher` |
+| Dynamic transform propagation | `tf::TransformBroadcaster` | `tf2_ros.TransformBroadcaster` |
+| Transform listening | `tf::TransformListener` | `tf2_ros.TransformListener` |
+| TF2 support | Optional | Default and mandatory |
+| Message type | `tf`/`tfMessage` | `geometry_msgs/msg/TransformStamped` |
+
+---
+
+### 🧪 Static Transform CLI Comparison
 
 **ROS1:**
 ```bash
@@ -624,78 +626,77 @@ rosrun tf static_transform_publisher x y z qx qy qz qw frame_id child_frame_id p
 ros2 run tf2_ros static_transform_publisher x y z roll pitch yaw frame_id child_frame_id
 ```
 
-- ROS2’de dönüşümler quaternion yerine roll, pitch, yaw olarak girilir
+- In ROS2, transformations are entered as roll, pitch, yaw instead of quaternion.
 
-- ROS2 komutu daha basit, otomatik frekansla çalışır
+- The ROS2 command is simpler and works with automatic frequency.
 
 ---
 
-🧩 TF2 Kullanım Örnekleri (Kod Mantığı)
+🧩 TF2 Usage Examples (Code Logic)
 ROS1:
 
-- Dinleyici:
-  - `tf::TransformListener listener;`
+- Listener:
+- `tf::TransformListener listener;`
 
-- Yayıncı:
-  - `tf::TransformBroadcaster br;`
+- Broadcaster:
+- `tf::TransformBroadcaster br;`
 
 ROS2:
 
-- Dinleyici:
-  - `tf_buffer = Buffer()`, `listener = TransformListener(buffer, node)`
+- Listener:
+- `tf_buffer = Buffer()`, `listener = TransformListener(buffer, node)`
 
-- Yayıncı:
-  - `StaticTransformBroadcaster`, `TransformBroadcaster`
+- Publisher:
+- `StaticTransformBroadcaster`, `TransformBroadcaster`
 
-ROS2’de tüm bu sınıflar tf2_ros paketinde yer alır ve QoS ayarlarıyla birlikte çalıştırılır.
-
----
-
-🗺️ RViz ve TF2
-- ROS1 ve ROS2’de RViz (ve 'rviz2') içindeki TF görselleştirme sistemi aynıdır
-
-- TF ağaçlarının doğru yayınlandığını test etmek için:
-  - `rosrun tf view_frames` → ROS1
-  - `ros2 run tf2_tools view_frames` → ROS2 (PDF olarak çıkarır)
-
-✅ Geçiş Önerileri
-- `tf::` içeren tüm kodlar `tf2_ros` yapısına geçirilmelidir
-
-- Transform mesaj türü `geometry_msgs/msg/TransformStamped` olmalıdır
-
-- Eğer ROS1 kodlarınızda `tf` kullanıyorsanız ROS2’de bu doğrudan çalışmaz
-
-- Statik dönüşümler için CLI komutlarının ROS2 sürümü kullanılmalı
-
-- `tf2_ros.Buffer` yapısına alışmak uzun vadede daha güçlü yapı sağlar
-
-ROS2’de transform sisteminin tamamen `tf2` üzerine kurulmuş olması sayesinde; daha tutarlı, esnek ve DDS uyumlu bir yapı sağlanmıştır. Doğru TF yapısı, navigasyon, SLAM, robot kolu gibi tüm sistemlerin güvenilir çalışması için temel şarttır.
+In ROS2, all these classes are included in the tf2_ros package and are implemented with QoS settings.
 
 ---
 
+🗺️ RViz and TF2
+- The TF visualization system in RViz (and 'rviz2') is the same in ROS1 and ROS2.
+
+- To test that TF trees are being rendered correctly:
+- `rosrun tf view_frames` → ROS1
+- `ros2 run tf2_tools view_frames` → ROS2 (extracts as a PDF)
+
+✅ Migration Recommendations
+- All code containing `tf::` should be migrated to `tf2_ros`
+
+- The transform message type should be `geometry_msgs/msg/TransformStamped`
+
+- If you use `tf` in your ROS1 code, this will not work directly in ROS2.
+
+- The ROS2 version of the CLI commands should be used for static transformations.
+
+- Getting used to the `tf2_ros.Buffer` structure will provide a more robust structure in the long run.
+
+In ROS2, the transform system is completely Being built on `tf2`, a more consistent, flexible, and DDS-compatible architecture is provided. A correct TF structure is essential for the reliable operation of all systems, such as navigation, SLAM, and robotic arms.
+
 ---
 
-## 🔧 Ek Araçlar: Geçiş Sürecinde Yardımcı Olabilecek Bileşenler
+---
 
-Tüm sistemi doğrudan ROS2’ye geçirmek her zaman mümkün olmayabilir. Bazı bileşenlerin geçici olarak ROS1'de kalması gerekiyorsa, aşağıdaki araçlar bu süreçte size yardımcı olabilir.
+## 🔧 Additional Tools: Components That Can Help in the Migration Process
+
+Directly migrating the entire system to ROS2 may not always be possible. If some components need to remain in ROS1 temporarily, the following tools can assist in this process.
 
 ---
 
-### 🔗 `ros1_bridge`: ROS1 ve ROS2 Arasında Köprü Kurmak
+### 🔗 `ros1_bridge`: Building a Bridge Between ROS1 and ROS2
 
-`ros1_bridge`, ROS1 ve ROS2 sistemleri arasında mesaj ve servis alışverişi yapmanızı sağlayan bir köprü katmanıdır. Geçici çözümler veya kademeli geçiş senaryolarında oldukça kullanışlıdır.
+`ros1_bridge` is a bridge layer that allows you to exchange messages and services between ROS1 and ROS2 systems. Workarounds or incremental It's very useful in migration scenarios.
 
-**Ne zaman kullanılır?**
-- Bazı sürücüler veya node'lar henüz ROS2’ye port edilmemişse
-- ROS2’de yeni geliştirilen sistemlerin ROS1 verisiyle test edilmesi gerekiyorsa
+**When to use it?**
+- If some drivers or nodes haven't yet been ported to ROS2.
+- If newly developed systems in ROS2 need to be tested with ROS1 data.
 
-**Temel Özellikleri:**
-- ROS1 ve ROS2’de aynı tanımlanmış mesajlar arasında otomatik köprü
-- Topic, service ve (kısıtlı olarak) action desteği
-- Kaynak koddan derleme gerekir, özel mesajlarda ekstra yapılandırma gerekebilir
+**Key Features:**
+- Automatic bridge between messages defined in the same way in ROS1 and ROS2.
+- Support for topics, services, and (limited) actions.
+- Requires compilation from source code; custom messages may require additional configuration.
 
-**Resmi proje sayfası:**  
+**Official project page:**
 👉 https://github.com/ros2/ros1_bridge
-
 
 ---
